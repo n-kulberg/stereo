@@ -18,10 +18,46 @@
 
 namespace kns_test
 {
-template<class T>
-class Point3D
+
+template<class T, class CHILD_T, size_t N>
+class FieldObject
 {
 public:
+	static constexpr size_t n_dimensions() { return N; }
+	using value_type = T;
+	using child_type = CHILD_T;
+	using self = FieldObject<T, CHILD_T, N>;
+
+	T& at(size_t i){ return m_data[i]; }
+	const T& at(size_t i) const { return m_data[i]; }
+
+	const auto data() const{ return m_data; }
+
+	FieldObject() = default;
+	FieldObject(const self &) = default;
+
+	template<class T2>
+	FieldObject(const std::vector<T2>& il)
+	{
+		if(il.size()!=n_dimensions) throw std::invalid_argument("FieldObject::FieldObject(vector), invalid argument size");
+		std::copy(il.begin(), il.end(), m_data);
+	}
+
+
+protected:
+	T	m_data[n_dimensions()];
+
+private:
+
+};
+
+
+template<class T>
+class Point3D : public FieldObject<T, Point3D<T>, 3>
+{
+public:
+	using parent = FieldObject<T, Point3D<T>, 3>;
+	void inc(){ ++parent::dummy; }
 
 	using value_type = T;
 	using self = Point3D<T>;
@@ -32,19 +68,18 @@ public:
 	Point3D(const T& in_z, const T& in_y, const T& in_x){ x()=in_x; y() = in_y; z() = in_z; }
 	Point3D(T& in_z, const T& in_y, const T& in_x){ x()=in_x; y = in_y; z() = in_z; }
 
-	template<class T2>
-	Point3D(const std::vector<T2>& il)
-	{
-		if(il.size()!=3) throw std::invalid_argument("Point3D::Point3D(initializer_list), invalid argument size");
-		std::copy(il.begin(), il.end(), m_data);
-	}
 
-	T& x(){ return m_data[m_x]; }
-	T& y(){ return m_data[m_y]; }
-	T& z(){ return m_data[m_z]; }
-	const T& x() const { return m_data[m_x]; }
-	const T& y() const { return m_data[m_y]; }
-	const T& z() const { return m_data[m_z]; }
+	using parent::parent;
+	using parent::at;
+	using parent::data;
+	using parent::n_dimensions;
+
+	T& x(){ return at(m_x); }
+	T& y(){ return at(m_y); }
+	T& z(){ return at(m_z); }
+	const T& x() const { return at(m_x); }
+	const T& y() const { return at(m_y); }
+	const T& z() const { return at(m_z); }
 
 	// linear algebra operations
 	template<class T2> self& operator += (const Point3D<T2>& other){ modify_binary_action(*this, other, [](T& x, const T2& y){x += y;}); return *this; }
@@ -70,37 +105,35 @@ public:
 	}
 
 
-	const auto data() const{ return m_data; }
 
 protected:
 private:
 
 	const size_t m_z = 0, m_y = 1, m_x = 2;
-	T	m_data[3];
 
 	// data operation algorithms
 	template<class T2, class F>
 	void	modify_binary_action(self& p1, const Point3D<T2>& p2, const F& f)
 	{
-		for(size_t i = 0; i < 3; ++i) f(p1.m_data[i], *(p2.data() + i));
+		for(size_t i = 0; i < n_dimensions(); ++i) f(p1.m_data[i], *(p2.data() + i));
 	}
 	template<class T2, class F>
 	void	modify_binary_action(self& p1, const T2& scalar, const F& f)
 	{
-		for(size_t i = 0; i < 3; ++i) f(p1.m_data[i], scalar);
+		for(size_t i = 0; i < n_dimensions(); ++i) f(p1.m_data[i], scalar);
 	}
 	template<class T2, class F>
 	self	return_binary_action(const self& p1, const Point3D<T2>& p2, const F& f) const
 	{
 		self result;
-		for(size_t i = 0; i < 3; ++i) result.m_data[i] = f(p1.m_data[i], *(p2.data() + i));
+		for(size_t i = 0; i < n_dimensions(); ++i) result.m_data[i] = f(p1.m_data[i], *(p2.data() + i));
 		return result;
 	}
 	template<class T2, class F>
 	self	return_binary_action(const self& p1, const T2& scalar, const F& f) const
 	{
 		self result;
-		for(size_t i = 0; i < 3; ++i) result.m_data[i] = f(p1.m_data[i], scalar);
+		for(size_t i = 0; i < n_dimensions(); ++i) result.m_data[i] = f(p1.m_data[i], scalar);
 		return result;
 	}
 
@@ -108,7 +141,7 @@ private:
 	value_type	acquire_binary_action(const self& p1, const Point3D<T2>& p2, const F& f) const
 	{
 		value_type result(0);
-		for(size_t i = 0; i < 3; ++i) result += f(p1.data()[i], p2.data()[i]);
+		for(size_t i = 0; i < n_dimensions(); ++i) result += f(p1.data()[i], p2.data()[i]);
 		return result;
 	}
 };
