@@ -190,22 +190,53 @@ int	main(int, char **)
 {
 	using namespace kns_test;
 
-	int	m[3];
-	std::vector<int> v(3);
-	std::copy(v.begin(), v.end(), m);
 
+void	TestArithmeticsPoint()
+{
 	Point3D<double>	p1 ={1,2,3};
 	Point3D<float>	p2 ={2,1,-2};
 
-	double sp = p1.scalar_product(p2);
+	std::cout << "p1 = " << p1 << endl;
+	std::cout << "p2 = " << p2 << endl;
+	std::cout << "p1+p2 = " << p1+p2 << endl;
+	std::cout << "sp(p1,p2) = " << p1.scalar_product(p2) << endl;
+	std::cout << "p1*2 = " << p1*2. << endl;
+	std::cout << "p1+=p2 = " << (p1+=p2) << endl;
 
-	std::cout << p1.scalar_product(p2);
-	fflush(stdout);
+	Point3D<double>	v1 ={0,0,1};
+	Point3D<double>	v2 ={0,1,0};
 
-	p1 += p2;
-	p2 *= 3;
+	//trivial vector product check
+	std::cout << "v1 = " << v1 << endl;
+	std::cout << "v2 = " << v2 << endl;
+	std::cout << "v1 X v2 = " << v1.vector_product(v2) << endl;
+	std::cout << "v2 X v1 = " << v2.vector_product(v1) << endl;
 
-	auto p3 = p1 + p2;
+	//collinearity check
+	std::cout << "p1 X p1 = " << p1.vector_product(p1) << endl;
+	std::cout << "(p1 X p2) = " << p1.vector_product(p2) << endl;
+
+	//orthogonality check
+	std::cout << "(p1 X p2)*p1 = " << (p1.vector_product(p2)).scalar_product(p1) << endl;
+	std::cout << "(p1 X p2)*p2 = " << (p1.vector_product(p2)).scalar_product(p2) << endl;
+
+
+
+}
+
+int	main(int, char **)
+{
+	try
+	{
+		TestArithmeticsPoint();
+		fflush(stdout);
+
+	}
+	catch(exception& ex)
+	{
+		cout << "An error occured:" << endl << ex.what();
+	}
+
 
 
 	std::cout << 1;
