@@ -40,7 +40,7 @@ void	TestMatrix()
 	Matrix3D<double>	m1{Point3D{1,0,0},Point3D{0,2,0},Point3D(0,0,3)};
 	cout << "m1" << m1 << endl;
 
-	cout << "m1*v = " << endl << m1.multiply({1,1,1}) << endl;
+	cout << "m1*v = " << m1.multiply({1,1,1}) << endl;
 
 	m1 /= 2;
 	m1[2][2] = 10;
@@ -61,14 +61,14 @@ void	TestSegment()
 	Segment3D<double> s3;
 	s3 = s2;
 
-	cout << "s1 = \n" << s1 << endl;
-	cout << "s2 = \n" << s2 << endl;
+	cout << "s1 = " << s1 << endl;
+	cout << "s2 = " << s2 << endl;
 
 // 	s1+=s1;
  	s1*=2;
 //	s1 * 2;
 //	s1+s2;
-	cout << "s1*=s2 = \n" << s1 << endl;
+	cout << "s1*=s2 = " << s1 << endl;
 
 }
 
