@@ -183,12 +183,16 @@ private:
 };
 }//namespace kns_test
 
-}//namespace xrad
 using namespace kns_test;
 
-int	main(int, char **)
+
+
+void	TestSegment()
 {
-	using namespace kns_test;
+	Segment3D<double>	s1;
+	Segment3D<double>	s2({1,2,3}, {4,5,6});
+}
+
 
 
 void	TestArithmeticsPoint()
