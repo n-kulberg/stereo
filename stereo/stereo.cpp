@@ -1,9 +1,9 @@
 //#include "Segment.h"
 
-#include <initializer_list>
 #include <stdexcept>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 //------------------------------------------------------------------
 //
@@ -15,6 +15,8 @@
 //	purpose:	
 //
 //------------------------------------------------------------------
+
+using namespace std;
 
 namespace kns_test
 {
@@ -28,28 +30,102 @@ public:
 	using child_type = CHILD_T;
 	using self = FieldObject<T, CHILD_T, N>;
 
+	using iterator = T*;
+	using const_iterator = const T *;
+
+	iterator begin(){ return m_data; }
+	iterator end(){ return m_data + n_dimensions(); }
+	const_iterator cbegin() const { return m_data; }
+	const_iterator cend() const { return m_data + n_dimensions(); }
+
+	operator child_type& (){ return *static_cast<child_type*>(this); }
+	operator const child_type& () const { return *static_cast<child_type*>(this); }
+
+	child_type& child_ref(){return (*this); }
+	const child_type& child_ref() const { return (*this); }
+
+
 	T& at(size_t i){ return m_data[i]; }
 	const T& at(size_t i) const { return m_data[i]; }
 
 	const auto data() const{ return m_data; }
 
+	// constructors
 	FieldObject() = default;
 	FieldObject(const self &) = default;
+	//since the class is trivial, move constructor is not needed
 
 	template<class T2>
 	FieldObject(const std::vector<T2>& il)
 	{
 		if(il.size()!=n_dimensions) throw std::invalid_argument("FieldObject::FieldObject(vector), invalid argument size");
-		std::copy(il.begin(), il.end(), m_data);
+		std::copy(il.begin(), il.end(), begin());
 	}
 
 
-protected:
-	T	m_data[n_dimensions()];
+		// linear algebra operations
+	template<class T2, class C2> child_type& operator += (const FieldObject<T2,C2,N>& other){ modify_binary_action(*this, other, [](T& x, const T2& y){x += y;}); return child_ref(); }
+	template<class T2, class C2> child_type& operator -= (const FieldObject<T2,C2,N>& other){ modify_binary_action(*this, other, [](T& x, const T2& y){x -= y;}); return *this; }
+	template<class T2> child_type& operator *= (const T2& scalar){ modify_binary_action(*this, scalar, [](T& x, const T2& y){x *= y;}); return *this; }
+	template<class T2> child_type& operator /= (const T2& scalar){ modify_binary_action(*this, scalar, [](T& x, const T2& y){x /= y;}); return *this; }
+
+	template<class T2, class C2> child_type operator + (const FieldObject<T2,C2,N>& other) const { return return_binary_action(*this, other, [](const T& x, const T2& y){return x + y;}); }
+	template<class T2, class C2> child_type operator - (const FieldObject<T2,C2,N>& other) const { return return_binary_action(*this, other, [](const T& x, const T2& y){return x - y;}); }
+	template<class T2> child_type operator * (const T2& scalar) const { return return_binary_action(*this, scalar, [](const T& x, const T2& y){return x * y;}); }
+	template<class T2> child_type operator / (const T2& scalar) const { return return_binary_action(*this, scalar, [](const T& x, const T2& y){return x / y;}); }
+
+	template<class T2, class C2> value_type scalar_product(const FieldObject<T2,C2,N>& other) const { return acquire_binary_action(*this, other, [](const T& x, const T2& y){return x * y;}); }
+	double	l2_norma() const{ return sqrt(double(scalar_product(*this))); }
+
 
 private:
+	T	m_data[n_dimensions()];
+
+		// data operation algorithms
+	template<class T2, class C2, class F>
+	void	modify_binary_action(self& p1, const FieldObject<T2,C2,N>& p2, const F& f)
+	{
+		for(size_t i = 0; i < n_dimensions(); ++i) f(p1.m_data[i], *(p2.data() + i));
+	}
+	template<class T2, class C2, class F>
+	void	modify_binary_action(self& p1, const T2& scalar, const F& f)
+	{
+		for(size_t i = 0; i < n_dimensions(); ++i) f(p1.m_data[i], scalar);
+	}
+	template<class T2, class C2, class F>
+	child_type	return_binary_action(const self& p1, const FieldObject<T2,C2,N>& p2, const F& f) const
+	{
+		child_type result;
+		for(size_t i = 0; i < n_dimensions(); ++i) result.m_data[i] = f(p1.m_data[i], *(p2.data() + i));
+		return result;
+	}
+	template<class T2, class F>
+	child_type	return_binary_action(const self& p1, const T2& scalar, const F& f) const
+	{
+		child_type result;
+		for(size_t i = 0; i < n_dimensions(); ++i) result.m_data[i] = f(p1.m_data[i], scalar);
+		return result;
+	}
+
+	template<class T2, class C2, class F>
+	value_type	acquire_binary_action(const self& p1, const FieldObject<T2,C2,N>& p2, const F& f) const
+	{
+		value_type result(0);
+		for(size_t i = 0; i < n_dimensions(); ++i) result += f(p1.data()[i], p2.data()[i]);
+		return result;
+	}
 
 };
+
+template<class T, class CHILD_T, size_t N>
+std::ostream& operator << (std::ostream& str, const FieldObject<T, CHILD_T, N> &f)
+{
+	str << "{";
+	std::for_each(f.cbegin(), f.cend(), [&str](const T& x){str << x << ";";});
+	str << "}";
+	return str;
+}
+
 
 
 template<class T>
@@ -57,8 +133,6 @@ class Point3D : public FieldObject<T, Point3D<T>, 3>
 {
 public:
 	using parent = FieldObject<T, Point3D<T>, 3>;
-	void inc(){ ++parent::dummy; }
-
 	using value_type = T;
 	using self = Point3D<T>;
 
@@ -74,6 +148,7 @@ public:
 	using parent::data;
 	using parent::n_dimensions;
 
+
 	T& x(){ return at(m_x); }
 	T& y(){ return at(m_y); }
 	T& z(){ return at(m_z); }
@@ -81,19 +156,6 @@ public:
 	const T& y() const { return at(m_y); }
 	const T& z() const { return at(m_z); }
 
-	// linear algebra operations
-	template<class T2> self& operator += (const Point3D<T2>& other){ modify_binary_action(*this, other, [](T& x, const T2& y){x += y;}); return *this; }
-	template<class T2> self& operator -= (const Point3D<T2>& other){ modify_binary_action(*this, other, [](T& x, const T2& y){x -= y;}); return *this; }
-	template<class T2> self& operator *= (const T2& scalar){ modify_binary_action(*this, scalar, [](T& x, const T2& y){x *= y;}); return *this; }
-	template<class T2> self& operator /= (const T2& scalar){ modify_binary_action(*this, scalar, [](T& x, const T2& y){x /= y;}); return *this; }
-
-	template<class T2> self operator + (const Point3D<T2>& other) const { return return_binary_action(*this, other, [](const T& x, const T2& y){return x + y;}); }
-	template<class T2> self operator - (const Point3D<T2>& other) const { return return_binary_action(*this, other, [](const T& x, const T2& y){return x - y;}); }
-	template<class T2> self operator * (const T2& scalar) const { return return_binary_action(*this, scalar, [](const T& x, const T2& y){return x * y;}); }
-	template<class T2> self operator / (const T2& scalar) const { return return_binary_action(*this, scalar, [](const T& x, const T2& y){return x / y;}); }
-
-	template<class T2> value_type scalar_product(const Point3D<T2>& other) const { return acquire_binary_action(*this, other, [](const T& x, const T2& y){return x * y;}); }
-	double	l2_norma() const{ return sqrt(double(scalar_product(*this))); }
 
 	template<class T2> self vector_product(const Point3D<T2>& other) const
 	{
@@ -108,45 +170,21 @@ public:
 
 protected:
 private:
-
 	const size_t m_z = 0, m_y = 1, m_x = 2;
-
-	// data operation algorithms
-	template<class T2, class F>
-	void	modify_binary_action(self& p1, const Point3D<T2>& p2, const F& f)
-	{
-		for(size_t i = 0; i < n_dimensions(); ++i) f(p1.m_data[i], *(p2.data() + i));
-	}
-	template<class T2, class F>
-	void	modify_binary_action(self& p1, const T2& scalar, const F& f)
-	{
-		for(size_t i = 0; i < n_dimensions(); ++i) f(p1.m_data[i], scalar);
-	}
-	template<class T2, class F>
-	self	return_binary_action(const self& p1, const Point3D<T2>& p2, const F& f) const
-	{
-		self result;
-		for(size_t i = 0; i < n_dimensions(); ++i) result.m_data[i] = f(p1.m_data[i], *(p2.data() + i));
-		return result;
-	}
-	template<class T2, class F>
-	self	return_binary_action(const self& p1, const T2& scalar, const F& f) const
-	{
-		self result;
-		for(size_t i = 0; i < n_dimensions(); ++i) result.m_data[i] = f(p1.m_data[i], scalar);
-		return result;
-	}
-
-	template<class T2, class F>
-	value_type	acquire_binary_action(const self& p1, const Point3D<T2>& p2, const F& f) const
-	{
-		value_type result(0);
-		for(size_t i = 0; i < n_dimensions(); ++i) result += f(p1.data()[i], p2.data()[i]);
-		return result;
-	}
 };
 
+template<class T>
+class Segment3D : public FieldObject<Point3D<T>, Segment3D<Point3D<T>>, 2>
+{
+public:
+	using parent = FieldObject<Point3D<T>, Segment3D<Point3D<T>>, 2>;
+	using parent::parent;
+private:
+};
+}//namespace kns_test
+
 }//namespace xrad
+using namespace kns_test;
 
 int	main(int, char **)
 {
