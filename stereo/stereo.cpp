@@ -38,7 +38,7 @@ public:
 	const_iterator cbegin() const { return m_data; }
 	const_iterator cend() const { return m_data + n_dimensions(); }
 
-	operator child_type& (){ return *static_cast<child_type*>(this); }
+	operator child_type& (){ return *reinterpret_cast<child_type*>(this); }//!TODO bad idea
 	operator const child_type& () const { return *static_cast<child_type*>(this); }
 
 	child_type& child_ref(){return (*this); }
@@ -48,31 +48,55 @@ public:
 	T& at(size_t i){ return m_data[i]; }
 	const T& at(size_t i) const { return m_data[i]; }
 
-	const auto data() const{ return m_data; }
+	T& operator[](size_t i){ return m_data[i]; }
+	const T& operator[](size_t i) const { return m_data[i]; }
+
+//	const auto data() const{ return m_data; }
 
 	// constructors
 	FieldObject() = default;
-	FieldObject(const self &) = default;
+
+	template<class T2, class C2>
+	FieldObject(const FieldObject<T2, C2, N>& other){ std::copy(other.cbegin(), other.cend(), begin());}
+	FieldObject(const self&) = default;
+
+	template<class T2, class C2>
+	child_type& operator=(const FieldObject<T2,C2,N>& other)
+	{ 
+		std::copy(other.cbegin(), other.cend(), begin()); 
+		return child_ref(); 
+	}
+	
+	child_type& operator=(const self& other)
+	{
+		std::copy(other.cbegin(), other.cend(), begin());
+		return child_ref(); 
+	}//template can not replace implicit operator=
+
+
 	//since the class is trivial, move constructor is not needed
 
 	template<class T2>
-	FieldObject(const std::vector<T2>& il)
+	FieldObject(const std::initializer_list<T2>& il)
 	{
-		if(il.size()!=n_dimensions) throw std::invalid_argument("FieldObject::FieldObject(vector), invalid argument size");
-		std::copy(il.begin(), il.end(), begin());
+		if(il.size()!=n_dimensions()) throw std::invalid_argument("FieldObject::FieldObject(vector), invalid argument size");
+		auto	d = begin();
+		for(auto	it = il.begin(), ie = il.end(); it!=ie; ++it, ++d) *d=static_cast<T>(*it);//sorry, std::copy doesn't work for initializer list
 	}
 
 
 		// linear algebra operations
 	template<class T2, class C2> child_type& operator += (const FieldObject<T2,C2,N>& other){ modify_binary_action(*this, other, [](T& x, const T2& y){x += y;}); return child_ref(); }
 	template<class T2, class C2> child_type& operator -= (const FieldObject<T2,C2,N>& other){ modify_binary_action(*this, other, [](T& x, const T2& y){x -= y;}); return *this; }
-	template<class T2> child_type& operator *= (const T2& scalar){ modify_binary_action(*this, scalar, [](T& x, const T2& y){x *= y;}); return *this; }
-	template<class T2> child_type& operator /= (const T2& scalar){ modify_binary_action(*this, scalar, [](T& x, const T2& y){x /= y;}); return *this; }
+	template<class ST> child_type& operator *= (const ST& scalar){ modify_binary_action(*this, scalar, [](T& x, const ST& y){x *= y;}); return *this; }
+	template<class ST> child_type& operator /= (const ST& scalar){ modify_binary_action(*this, scalar, [](T& x, const ST& y){x /= y;}); return *this; }
 
 	template<class T2, class C2> child_type operator + (const FieldObject<T2,C2,N>& other) const { return return_binary_action(*this, other, [](const T& x, const T2& y){return x + y;}); }
 	template<class T2, class C2> child_type operator - (const FieldObject<T2,C2,N>& other) const { return return_binary_action(*this, other, [](const T& x, const T2& y){return x - y;}); }
-	template<class T2> child_type operator * (const T2& scalar) const { return return_binary_action(*this, scalar, [](const T& x, const T2& y){return x * y;}); }
-	template<class T2> child_type operator / (const T2& scalar) const { return return_binary_action(*this, scalar, [](const T& x, const T2& y){return x / y;}); }
+
+	template<class ST> child_type operator * (const ST& scalar) const { return return_binary_action(*this, scalar, [](const T& x, const ST& y){return x * y;}); }
+
+	template<class ST> child_type operator / (const ST& scalar) const { return return_binary_action(*this, scalar, [](const T& x, const ST& y){return x / y;}); }
 
 	template<class T2, class C2> value_type scalar_product(const FieldObject<T2,C2,N>& other) const { return acquire_binary_action(*this, other, [](const T& x, const T2& y){return x * y;}); }
 	double	l2_norma() const{ return sqrt(double(scalar_product(*this))); }
@@ -83,48 +107,42 @@ private:
 
 		// data operation algorithms
 	template<class T2, class C2, class F>
-	void	modify_binary_action(self& p1, const FieldObject<T2,C2,N>& p2, const F& f)
+	void	modify_binary_action(self& p1, const FieldObject<T2,C2,N>& p2, F f)
 	{
-		for(size_t i = 0; i < n_dimensions(); ++i) f(p1.m_data[i], *(p2.data() + i));
+		for(size_t i = 0; i < n_dimensions(); ++i) f(p1.at(i), p2.at(i));
+	}
+	template<class ST, class F>
+	void	modify_binary_action(self& p1, const ST& scalar, F f)
+	{
+		for(size_t i = 0; i < n_dimensions(); ++i) f(p1.at(i), scalar);
 	}
 	template<class T2, class C2, class F>
-	void	modify_binary_action(self& p1, const T2& scalar, const F& f)
+	child_type	return_binary_action(const self& p1, const FieldObject<T2,C2,N>& p2, F f) const
 	{
-		for(size_t i = 0; i < n_dimensions(); ++i) f(p1.m_data[i], scalar);
-	}
-	template<class T2, class C2, class F>
-	child_type	return_binary_action(const self& p1, const FieldObject<T2,C2,N>& p2, const F& f) const
-	{
+		//v
 		child_type result;
-		for(size_t i = 0; i < n_dimensions(); ++i) result.m_data[i] = f(p1.m_data[i], *(p2.data() + i));
+		for(size_t i = 0; i < n_dimensions(); ++i) result.at(i) = f(p1.at(i), p2.at(i));
 		return result;
 	}
 	template<class T2, class F>
-	child_type	return_binary_action(const self& p1, const T2& scalar, const F& f) const
+	child_type	return_binary_action(const self& p1, const T2& scalar, F f) const
 	{
+		//s
 		child_type result;
-		for(size_t i = 0; i < n_dimensions(); ++i) result.m_data[i] = f(p1.m_data[i], scalar);
+		for(size_t i = 0; i < n_dimensions(); ++i) result.at(i) = f(p1.at(i), scalar);
 		return result;
 	}
 
 	template<class T2, class C2, class F>
-	value_type	acquire_binary_action(const self& p1, const FieldObject<T2,C2,N>& p2, const F& f) const
+	value_type	acquire_binary_action(const self& p1, const FieldObject<T2,C2,N>& p2, F f) const
 	{
 		value_type result(0);
-		for(size_t i = 0; i < n_dimensions(); ++i) result += f(p1.data()[i], p2.data()[i]);
+		for(size_t i = 0; i < n_dimensions(); ++i) result += f(p1.at(i), p2.at(i));
 		return result;
 	}
 
 };
 
-template<class T, class CHILD_T, size_t N>
-std::ostream& operator << (std::ostream& str, const FieldObject<T, CHILD_T, N> &f)
-{
-	str << "{";
-	std::for_each(f.cbegin(), f.cend(), [&str](const T& x){str << x << ";";});
-	str << "}";
-	return str;
-}
 
 
 
@@ -139,13 +157,15 @@ public:
 	Point3D() = default;
 	Point3D(const self&) = default;
 	//since the class is trivial, move constructor is not needed
-	Point3D(const T& in_z, const T& in_y, const T& in_x){ x()=in_x; y() = in_y; z() = in_z; }
-	Point3D(T& in_z, const T& in_y, const T& in_x){ x()=in_x; y = in_y; z() = in_z; }
+	Point3D(const T& in_x, const T& in_y, const T& in_z){ x()=in_x; y() = in_y; z() = in_z; }
+	Point3D(T& in_x, const T& in_y, const T& in_z){ x()=in_x; y = in_y; z() = in_z; }
 
+	template<class T2>
+	self& operator=(const Point3D<T2>& other){ return parent::operator=(other); }
+	self& operator=(const self& other){ return parent::operator=(other); }
 
 	using parent::parent;
-	using parent::at;
-	using parent::data;
+	//using parent::data;
 	using parent::n_dimensions;
 
 
@@ -166,37 +186,157 @@ public:
 		return result;
 	}
 
+	using parent::at;
 
 
 protected:
+
+
 private:
-	const size_t m_z = 0, m_y = 1, m_x = 2;
+	const size_t m_z = 2, m_y = 1, m_x = 0;
 };
+
+
+using point3 = Point3D<double>;
 
 template<class T>
 class Segment3D : public FieldObject<Point3D<T>, Segment3D<Point3D<T>>, 2>
 {
 public:
+	using self = Segment3D<T>;
 	using parent = FieldObject<Point3D<T>, Segment3D<Point3D<T>>, 2>;
+	using value_type = Point3D<T>;
+	using point_type = Point3D<T>;
+
+ 	using parent::parent;
+	template<class T2>
+	self& operator=(const Segment3D<T2>& other){ parent::operator=(other); return *this; }
+	self& operator=(const self& other){ parent::operator=(other); return *this; }
+
+	point_type& p1(){ return at(m_p1); }
+	point_type& p2(){ return at(m_p2); }
+	
+	const point_type& p1() const { return at(m_p1); }
+	const point_type& p2() const { return at(m_p2); }
+
+	point_type	radius_vector() const { return p2()-p1(); };
+	double length() const{ return l2_norma(radius_vector()); }
+
+	using parent::at;
+
+private:
+	const size_t m_p1 = 0;
+	const size_t m_p2 = 1;
+};
+
+
+template<class T>
+class Matrix3D : public FieldObject<Point3D<T>, Matrix3D<Point3D<T>>, 3>
+{
+public:
+	using self = Matrix3D<T>;
+	using parent = FieldObject<Point3D<T>, Matrix3D<Point3D<T>>, 3>;
+	using value_type = Point3D<T>;
+	using point_type = Point3D<T>;
+
 	using parent::parent;
+	template<class T2>
+	self& operator=(const Matrix3D<T2>& other){ parent::operator=(other); return *this; }
+	self& operator=(const self& other){ parent::operator=(other); return *this; }
+
+	point_type multiply(const point_type& other)
+	{
+		point_type	result{at(0).scalar_product(other), at(1).scalar_product(other),at(2).scalar_product(other)};
+		return result;
+	}
+	using parent::at;
 private:
 };
+
+
+// output auxiliaries
+
+template<class T>
+struct separator
+{
+	static string prefix(){ return ""; }
+	static string get(){ return ";"; }
+};
+
+template<class T>
+struct separator<Point3D<T>>
+{
+	static string prefix(){ return "\n"; }
+	static string get(){ return "\n"; }
+};
+
+template<class T>
+struct separator<Matrix3D<T>>
+{
+	static string prefix(){ return "\n"; }
+	static string get(){ return "\n"; }
+};
+
+// output
+
+template<class T, class CHILD_T, size_t N>
+std::ostream& operator << (std::ostream& str, const FieldObject<T, CHILD_T, N>& f)
+{
+	str << separator<T>::prefix() << "{";
+	std::for_each(f.cbegin(), f.cend()-1, [&str](const T& x){str << x << separator<T>::get();});
+	str << *(f.cend()-1) << "}";
+	return str;
+}
+
 }//namespace kns_test
 
 using namespace kns_test;
 
 
+void	TestMatrix()
+{
+	cout << "---------------Test segment------------------------" << endl;
+	Matrix3D<double>	m1{Point3D{1,0,0},Point3D{0,2,0},Point3D(0,0,3)};
+	cout << "m1" << m1 << endl;
+
+	cout << "m1*v = " << endl << m1.multiply({1,1,1}) << endl;
+
+	m1 /= 2;
+	m1[2][2] = 10;
+	cout << m1;
+}
 
 void	TestSegment()
 {
-	Segment3D<double>	s1;
-	Segment3D<double>	s2({1,2,3}, {4,5,6});
+	cout << "---------------Test segment------------------------" << endl;
+	Segment3D<double>	s1 {Point3D{1,1,0},Point3D{2,0,2}};
+
+	point3	p1 ={1,2,3};
+	point3	p2 ={4,5,6};
+	point3 p3;
+	p3 = p2;
+
+	Segment3D<double>	s2 {p1, p2};
+	Segment3D<double> s3;
+	s3 = s2;
+
+	cout << "s1 = \n" << s1 << endl;
+	cout << "s2 = \n" << s2 << endl;
+
+// 	s1+=s1;
+ 	s1*=2;
+//	s1 * 2;
+//	s1+s2;
+	cout << "s1*=s2 = \n" << s1 << endl;
+
+	vector<point3> v{p1, p2};
 }
 
 
 
 void	TestArithmeticsPoint()
 {
+	cout << "---------------Test point------------------------" << endl;
 	Point3D<double>	p1 ={1,2,3};
 	Point3D<float>	p2 ={2,1,-2};
 
@@ -233,6 +373,8 @@ int	main(int, char **)
 	try
 	{
 		TestArithmeticsPoint();
+		TestSegment();
+		TestMatrix();
 		fflush(stdout);
 
 	}
@@ -242,7 +384,9 @@ int	main(int, char **)
 	}
 
 
+	int n;
+	std::cin >> n;
+	// to avoid console close
 
-	std::cout << 1;
 	return 0;
 }
