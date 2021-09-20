@@ -86,6 +86,11 @@ using p3_F32 = Point3D<float>;
 using p3_I32 = Point3D<int32_t>;
 using p3_I16 = Point3D<int16_t>;
 
+template<class T1, class T2> Point3D<T1> cross_product(const Point3D<T1>& first, const Point3D<T2>& second)
+{
+	return first.cross_product(second);
+}
+
 
 }//namespace kns_test
 
