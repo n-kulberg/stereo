@@ -72,6 +72,13 @@ private:
 };
 
 
+//user-friendly type name aliases
+using p3_F64 = Point3D<double>;
+using p3_F32 = Point3D<float>;
+using p3_I32 = Point3D<int32_t>;
+using p3_I16 = Point3D<int16_t>;
+
+
 }//namespace kns_test
 
 #endif //__Point3D_h

@@ -49,6 +49,11 @@ private:
 	constexpr size_t m_p2() const { return 1; }
 };
 
+// user-friendly typename aliases
+using s3_F64 = Segment3D<double>;
+using s3_F32 = Segment3D<float>;
+using s3_I32 = Segment3D<int32_t>;
+using s3_I16 = Segment3D<int16_t>;
 
 }//namespace kns_test
 
