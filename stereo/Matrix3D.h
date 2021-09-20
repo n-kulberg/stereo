@@ -14,6 +14,8 @@
 //------------------------------------------------------------------
 
 #include "Point3D.h"
+#include <stdexcept>
+#include <cmath>
 
 namespace kns_test
 {
@@ -75,17 +77,57 @@ private:
 };
 
 
-template<class T=double> 
-Matrix3D<T> identity_matrix()
-{
-	return Matrix3D<T>{ Point3D<T>{ 1, 0, 0 }, Point3D<T>{0,1,0}, Point3D<T>{0,0,1} };
-}
 
 //! user-friendly typename aliases
 using m3_F64 = Matrix3D<double>;
 using m3_F32 = Matrix3D<float>;
 using m3_I32 = Matrix3D<int32_t>;
 using m3_I16 = Matrix3D<int16_t>;
+
+
+// utilities
+
+template<class T=double> 
+Matrix3D<T> identity_matrix()
+{
+	return Matrix3D<T>{ Point3D<T>{ 1, 0, 0 }, Point3D<T>{0,1,0}, Point3D<T>{0,0,1} };
+}
+
+
+template<class T>
+m3_F64	rotation_matrix_to_z_axis(const Point3D<T>& p)
+{
+	const double	epsilon = 1e-9;
+	double	r_xyz = p.l2_norma();
+	if(!std::isnormal(p.l2_norma())) throw std::invalid_argument("");
+
+	double	r_xy = hypot(p.x(), p.y());
+	if(r_xy/r_xyz < epsilon) return identity_matrix();//no rotation is needed
+
+	double	cosfi = p.x()/r_xy;
+	double	sinfi = p.y()/r_xy;
+	double	costheta = p.z()/r_xyz;
+	double	sintheta = r_xy/r_xyz;
+
+	//rotating vector parallel to xy plane. vector is moved to xz plane, its y component is set to zero. z component is not influenced
+	m3_F64	m_rotate_in_xy_plane_to_zero_y_component =
+	{
+		p3_F64{cosfi, sinfi, 0},
+		p3_F64{-sinfi, cosfi, 0},
+		p3_F64{0, 0, 1},
+	};
+
+	//rotating vector parallel to xz plane. vector is moved to z axis, its x component is set to zero. y component is not influenced
+	m3_F64	m_rotate_in_xz_plane_to_zero_x_component =
+	{
+		p3_F64{costheta, 0, -sintheta},
+		p3_F64{0, 1, 0},
+		p3_F64{sintheta, 0, costheta},
+	};
+	// superposition of two rotations
+	return m_rotate_in_xz_plane_to_zero_x_component.multiply(m_rotate_in_xy_plane_to_zero_y_component);
+}
+
 
 }//namespace kns_test
 

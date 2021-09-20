@@ -2,7 +2,7 @@
 #include "Matrix3D.h"
 #include "Segment3D.h"
 #include "FieldOutput.h"
-
+#include <cmath>
 //------------------------------------------------------------------
 //
 //	created:	2021/09/20	15:01
@@ -15,7 +15,6 @@
 //------------------------------------------------------------------
 
 using namespace kns_test;
-
 
 void	TestMatrix()
 {
@@ -46,6 +45,11 @@ void	TestMatrix()
 
 	cout << "rotxy X v = " << rotxy.multiply(v) << endl;
 
+	p3_F64	rv{1,1,1};
+	auto	rm = rotation_matrix_to_z_axis(rv);
+	cout << "rv = " << rv << endl;
+	cout << "rm = " << rm << endl;
+	cout << "rm x rv" << rm.multiply(rv) << endl;
 }
 
 void	TestSegment()
