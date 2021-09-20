@@ -16,10 +16,24 @@
 #include <initializer_list>
 #include <algorithm>
 #include <stdexcept>
+#include <type_traits>
 
 namespace kns_test
 {
 
+//! \brief scalar product operation for built-in arithmetic types
+template<class T1, class T2>
+typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmetic<T2>::value, T1>::type	scalar_product(const T1& x, const T2& y)
+{
+	return x*y;
+}
+
+//! \brief Field object is the element of field set (https://en.wikipedia.org/wiki/Field_(mathematics))
+//! \detailed We suppose that the field is the synonym of the "linear vector space".
+//! Elements of fields (objects belonging to it) can be:
+//! 1. added and subtracted with each other;
+//! 2. multiplied and divided by scalar.
+//! The add/subtract/multiply result is also the element of the field.
 
 template<class T, class CHILD_T, size_t N>
 class FieldObject
@@ -59,7 +73,6 @@ public:
 	T& operator[](size_t i){ return m_data[i]; }
 	const T& operator[](size_t i) const { return m_data[i]; }
 
-//	const auto data() const{ return m_data; }
 
 	// constructors
 	FieldObject() = default;
@@ -106,7 +119,10 @@ public:
 
 	template<class ST> child_type operator / (const ST& scalar) const { return return_binary_action(*this, scalar, [](const T& x, const ST& y){return x / y;}); }
 
-	template<class T2, class C2> value_type scalar_product(const FieldObject<T2, C2, N>& other) const { return acquire_binary_action(*this, other, [](const T& x, const T2& y){return x * y;}); }
+	//! \brief scalar product by another object of similar field
+	template<class T2, class C2> value_type scalar_product(const FieldObject<T2, C2, N>& other) const { return acquire_binary_action(*this, other, [](const T& x, const T2& y){return kns_test::scalar_product(x, y);}); }
+
+	//! \brief Lebesgue norma of the field object
 	double	l2_norma() const{ return sqrt(double(scalar_product(*this))); }
 
 
@@ -151,6 +167,21 @@ private:
 
 };
 
+//! \brief type check classes
+template<class T>
+class is_field_object : public std::false_type
+{};
+
+template<class T, class CT, size_t N>
+class is_field_object <FieldObject<T,CT,N>> : public std::true_type
+{};
+
+//! \brief Scalar product of similar field objects, external operator
+template<class T1, class T2, class CT1, class CT2, size_t N>
+T1	scalar_product(const FieldObject<T1,CT1,N>& x, const FieldObject<T2,CT2,N>& y)
+{
+	return x.scalar_product(y);
+}
 
 }//namespace kns_test
 
