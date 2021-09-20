@@ -28,10 +28,7 @@ public:
 	using point_type = Point3D<T>;
 
 	using parent::parent;
-
-	template<class T2>
-	self& operator=(const Segment3D<T2>& other){ parent::operator=(other); return *this; }
-	self& operator=(const self& other){ parent::operator=(other); return *this; }
+	using parent::operator =;
 
 	point_type& p1(){ return at(m_p1()); }
 	point_type& p2(){ return at(m_p2()); }
@@ -45,8 +42,8 @@ public:
 	using parent::at;
 
 private:
-	constexpr size_t m_p1() const { return 0; }
-	constexpr size_t m_p2() const { return 1; }
+	static constexpr size_t m_p1() { return 0; }
+	static constexpr size_t m_p2() { return 1; }
 };
 
 // user-friendly typename aliases
