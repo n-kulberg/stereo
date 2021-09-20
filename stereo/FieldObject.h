@@ -176,6 +176,13 @@ T1	scalar_product(const FieldObject<T1,CT1,N>& x, const FieldObject<T2,CT2,N>& y
 	return x.scalar_product(y);
 }
 
+//! \brief Shorter alias for scalar product
+template<class T1, class T2, class CT1, class CT2, size_t N>
+T1 sp(const FieldObject<T1, CT1, N>& x, const FieldObject<T2, CT2, N>& y)
+{
+	return scalar_product(x,y);
+}
+
 }//namespace kns_test
 
 #endif //__FieldObject_h
