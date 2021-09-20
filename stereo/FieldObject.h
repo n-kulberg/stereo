@@ -165,14 +165,9 @@ private:
 
 };
 
-//! \brief type check classes
-template<class T>
-class is_field_object : public std::false_type
-{};
-
-template<class T, class CT, size_t N>
-class is_field_object <FieldObject<T,CT,N>> : public std::true_type
-{};
+//! \brief Check if the object belongs to some field
+template<class T> class is_field_object : public std::false_type {};
+template<class T, class CT, size_t N> class is_field_object <FieldObject<T,CT,N>> : public std::true_type {};
 
 //! \brief Scalar product of similar field objects, external operator
 template<class T1, class T2, class CT1, class CT2, size_t N>
