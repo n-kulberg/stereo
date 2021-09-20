@@ -36,16 +36,37 @@ public:
 	row_type& row(size_t i){ return parent::at(i); }
 	const row_type& row(size_t i) const { return parent::at(i); }
 
-	template<class T2>
-	self& operator=(const Matrix3D<T2>& other){ parent::operator=(other); return *this; }
-	self& operator=(const self& other){ parent::operator=(other); return *this; }
 
-	point_type multiply(const point_type& other)
+	self transposed() const
 	{
-		point_type	result{at(0).scalar_product(other), at(1).scalar_product(other),at(2).scalar_product(other)};
-		return result;
+		return self
+		{
+			row_type{at(0,0), at(1,0), at(2,0)},	row_type{at(0,1), at(1,1), at(2,1)}, row_type{at(0,2), at(1,2), at(2,2)}
+		};
 	}
-	using parent::at;
+
+
+	//! \brief Left multiply matrix by vector
+	template<class T2>
+	row_type multiply(const Point3D<T2> & other)
+	{
+		return row_type	{scalar_product(row(0), other), scalar_product(row(1), other), scalar_product(row(2), other)};
+	}
+
+	//! \brief Multiply matrix by matrix
+	template<class T2>
+	self multiply(const Matrix3D<T2>& other)
+	{
+		auto tr = other.transposed();
+		return self
+		{
+			row_type{scalar_product(row(0), tr.row(0)), scalar_product(row(0), tr.row(1)), scalar_product(row(0), tr.row(2))},
+			row_type{scalar_product(row(1), tr.row(0)), scalar_product(row(1), tr.row(1)), scalar_product(row(1), tr.row(2))},
+			row_type{scalar_product(row(2), tr.row(0)), scalar_product(row(2), tr.row(1)), scalar_product(row(2), tr.row(2))},
+		};
+	}
+
+
 private:
 	//Function parent::at(size_t) is not allowed to avoid confusion with redefined operator at(size_t, size_t).
 	//But parent::operator[] is available
