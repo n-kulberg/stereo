@@ -108,16 +108,18 @@ public:
 
 		// linear algebra operations
 	template<class T2, class C2> child_type& operator += (const FieldObject<T2, C2, N>& other){ modify_binary_action(*this, other, [](T& x, const T2& y){x += y;}); return child_ref(); }
-	template<class T2, class C2> child_type& operator -= (const FieldObject<T2, C2, N>& other){ modify_binary_action(*this, other, [](T& x, const T2& y){x -= y;}); return *this; }
-	template<class ST> child_type& operator *= (const ST& scalar){ modify_binary_action(*this, scalar, [](T& x, const ST& y){x *= y;}); return *this; }
-	template<class ST> child_type& operator /= (const ST& scalar){ modify_binary_action(*this, scalar, [](T& x, const ST& y){x /= y;}); return *this; }
+	template<class T2, class C2> child_type& operator -= (const FieldObject<T2, C2, N>& other){ modify_binary_action(*this, other, [](T& x, const T2& y){x -= y;}); return child_ref(); }
+
+	//NB no references in these functions, high risk of side effects
+	template<class ST> child_type& operator *= (ST scalar){ modify_binary_action(*this, scalar, [](T& x, const ST& y){x *= y;}); return child_ref(); }
+	template<class ST> child_type& operator /= (ST scalar){ modify_binary_action(*this, scalar, [](T& x, const ST& y){x /= y;}); return child_ref(); }
 
 	template<class T2, class C2> child_type operator + (const FieldObject<T2, C2, N>& other) const { return return_binary_action(*this, other, [](const T& x, const T2& y){return x + y;}); }
 	template<class T2, class C2> child_type operator - (const FieldObject<T2, C2, N>& other) const { return return_binary_action(*this, other, [](const T& x, const T2& y){return x - y;}); }
 
-	template<class ST> child_type operator * (const ST& scalar) const { return return_binary_action(*this, scalar, [](const T& x, const ST& y){return x * y;}); }
-
-	template<class ST> child_type operator / (const ST& scalar) const { return return_binary_action(*this, scalar, [](const T& x, const ST& y){return x / y;}); }
+	//NB no references in these functions, high risk of side effects
+	template<class ST> child_type operator * (ST scalar) const { return return_binary_action(*this, scalar, [](const T& x, const ST& y){return x * y;}); }
+	template<class ST> child_type operator / (ST scalar) const { return return_binary_action(*this, scalar, [](const T& x, const ST& y){return x / y;}); }
 
 	//! \brief scalar product by another object of similar field
 	template<class T2, class C2> value_type scalar_product(const FieldObject<T2, C2, N>& other) const { return acquire_binary_action(*this, other, [](const T& x, const T2& y){return kns_test::scalar_product(x, y);}); }
@@ -131,35 +133,35 @@ protected:
 
 		// data operation algorithms
 	template<class T2, class C2, class F>
-	void	modify_binary_action(self& p1, const FieldObject<T2, C2, N>& p2, F f)
+	void	modify_binary_action(self& first, const FieldObject<T2, C2, N>& second, F f)
 	{
-		for(size_t i = 0; i < n_dimensions(); ++i) f(p1.at(i), p2.at(i));
+		for(size_t i = 0; i < n_dimensions(); ++i) f(first.at(i), second.at(i));
 	}
 	template<class ST, class F>
-	void	modify_binary_action(self& p1, const ST& scalar, F f)
+	void	modify_binary_action(self& first, ST second, F f)
 	{
-		for(size_t i = 0; i < n_dimensions(); ++i) f(p1.at(i), scalar);
+		for(size_t i = 0; i < n_dimensions(); ++i){f(first.at(i), second);}
 	}
 	template<class T2, class C2, class F>
-	child_type	return_binary_action(const self& p1, const FieldObject<T2, C2, N>& p2, F f) const
+	child_type	return_binary_action(const self& first, const FieldObject<T2, C2, N>& second, F f) const
 	{
 		self result;
-		for(size_t i = 0; i < n_dimensions(); ++i) result.at(i) = f(p1.at(i), p2.at(i));
+		for(size_t i = 0; i < n_dimensions(); ++i) result.at(i) = f(first.at(i), second.at(i));
 		return std::move(result.child_ref());
 	}
-	template<class T2, class F>
-	child_type	return_binary_action(const self& p1, const T2& scalar, F f) const
+	template<class ST, class F>
+	child_type	return_binary_action(const self& first, ST second, F f) const
 	{
 		self result;
-		for(size_t i = 0; i < n_dimensions(); ++i) result.at(i) = f(p1.at(i), scalar);
+		for(size_t i = 0; i < n_dimensions(); ++i) {result.at(i) = f(first.at(i), second);}
 		return std::move(result.child_ref());
 	}
 
 	template<class T2, class C2, class F>
-	value_type	acquire_binary_action(const self& p1, const FieldObject<T2, C2, N>& p2, F f) const
+	value_type	acquire_binary_action(const self& first, const FieldObject<T2, C2, N>& second, F f) const
 	{
 		value_type result(0);
-		for(size_t i = 0; i < n_dimensions(); ++i) result += f(p1.at(i), p2.at(i));
+		for(size_t i = 0; i < n_dimensions(); ++i) result += f(first.at(i), second.at(i));
 		return result;
 	}
 
