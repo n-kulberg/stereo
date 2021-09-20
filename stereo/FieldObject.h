@@ -38,8 +38,16 @@ public:
 	const_iterator cbegin() const { return m_data; }
 	const_iterator cend() const { return m_data + n_dimensions(); }
 
-	operator child_type& (){ return *reinterpret_cast<child_type*>(this); }//!TODO bad idea
-	operator const child_type& () const { return *static_cast<child_type*>(this); }
+	operator child_type& ()
+	{ 
+ 		static_assert(sizeof(self) == sizeof(child_type), "FieldObject<T,CHILD_T,N>::operator child_type: Incompatible self and child types.");
+		return *reinterpret_cast<child_type*>(this); 
+	}
+	operator const child_type& () const 
+	{
+ 		static_assert(sizeof(self) == sizeof(child_type), "FieldObject<T,CHILD_T,N>::operator child_type: Incompatible self and child types.");
+		return *static_cast<child_type*>(this); 
+	}
 
 	child_type& child_ref(){ return (*this); }
 	const child_type& child_ref() const { return (*this); }
