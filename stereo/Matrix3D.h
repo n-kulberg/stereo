@@ -18,11 +18,11 @@ namespace kns_test
 {
 
 template<class T>
-class Matrix3D : public FieldObject<Point3D<T>, Matrix3D<Point3D<T>>, 3>
+class Matrix3D : public FieldObject<Point3D<T>, Matrix3D<T>, 3>
 {
 public:
 	using self = Matrix3D<T>;
-	using parent = FieldObject<Point3D<T>, Matrix3D<Point3D<T>>, 3>;
+	using parent = FieldObject<Point3D<T>, Matrix3D<T>, 3>;
 	using value_type = Point3D<T>;
 	using point_type = Point3D<T>;
 

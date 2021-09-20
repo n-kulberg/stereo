@@ -19,15 +19,16 @@ namespace kns_test
 
 
 template<class T>
-class Segment3D : public FieldObject<Point3D<T>, Segment3D<Point3D<T>>, 2>
+class Segment3D : public FieldObject<Point3D<T>, Segment3D<T>, 2>
 {
 public:
 	using self = Segment3D<T>;
-	using parent = FieldObject<Point3D<T>, Segment3D<Point3D<T>>, 2>;
+	using parent = FieldObject<Point3D<T>, Segment3D<T>, 2>;
 	using value_type = Point3D<T>;
 	using point_type = Point3D<T>;
 
 	using parent::parent;
+
 	template<class T2>
 	self& operator=(const Segment3D<T2>& other){ parent::operator=(other); return *this; }
 	self& operator=(const self& other){ parent::operator=(other); return *this; }
