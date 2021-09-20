@@ -25,6 +25,8 @@ public:
 	using parent = FieldObject<Point3D<T>, Matrix3D<T>, 3>;
 	using value_type = Point3D<T>;
 	using point_type = Point3D<T>;
+	using value_type = T;
+	using	row_type = Point3D<T>;
 
 	using parent::parent;
 	template<class T2>
