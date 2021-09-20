@@ -40,6 +40,19 @@ public:
 private:
 };
 
+
+template<class T=double> 
+Matrix3D<T> identity_matrix()
+{
+	return Matrix3D<T>{ Point3D<T>{ 1, 0, 0 }, Point3D<T>{0,1,0}, Point3D<T>{0,0,1} };
+}
+
+//! user-friendly typename aliases
+using m3_F64 = Matrix3D<double>;
+using m3_F32 = Matrix3D<float>;
+using m3_I32 = Matrix3D<int32_t>;
+using m3_I16 = Matrix3D<int16_t>;
+
 }//namespace kns_test
 
 
