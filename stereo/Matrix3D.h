@@ -49,6 +49,9 @@ public:
 	}
 	using parent::at;
 private:
+	//Function parent::at(size_t) is not allowed to avoid confusion with redefined operator at(size_t, size_t).
+	//But parent::operator[] is available
+	using parent::at;
 };
 
 
