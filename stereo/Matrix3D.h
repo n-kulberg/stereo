@@ -51,14 +51,14 @@ public:
 
 	//! \brief Left multiply matrix by vector
 	template<class T2>
-	row_type multiply(const Point3D<T2> & other)
+	row_type multiply(const Point3D<T2> & other) const
 	{
 		return row_type	{scalar_product(row(0), other), scalar_product(row(1), other), scalar_product(row(2), other)};
 	}
 
 	//! \brief Multiply matrix by matrix
 	template<class T2>
-	self multiply(const Matrix3D<T2>& other)
+	self multiply(const Matrix3D<T2>& other) const
 	{
 		auto tr = other.transposed();
 		return self
@@ -68,7 +68,6 @@ public:
 			row_type{scalar_product(row(2), tr.row(0)), scalar_product(row(2), tr.row(1)), scalar_product(row(2), tr.row(2))},
 		};
 	}
-
 
 private:
 	//Function parent::at(size_t) is not allowed to avoid confusion with redefined operator at(size_t, size_t).
@@ -83,6 +82,19 @@ using m3_F64 = Matrix3D<double>;
 using m3_F32 = Matrix3D<float>;
 using m3_I32 = Matrix3D<int32_t>;
 using m3_I16 = Matrix3D<int16_t>;
+
+//! non-member functions for matrix multiply
+template<class T1, class T2>
+auto	matrix_multiply(const Matrix3D<T1> &m, const Point3D<T2> &p)
+{
+	return m.multiply(p);
+}
+
+template<class T1, class T2>
+auto	matrix_multiply(const Matrix3D<T1>& m, const Matrix3D<T2>& m2)
+{
+	return m.multiply(m2);
+}
 
 
 // utilities
@@ -125,7 +137,7 @@ m3_F64	rotation_matrix_to_z_axis(const Point3D<T>& p)
 		p3_F64{sintheta, 0, costheta},
 	};
 	// superposition of two rotations
-	return m_rotate_in_xz_plane_to_zero_x_component.multiply(m_rotate_in_xy_plane_to_zero_y_component);
+	return matrix_multiply(m_rotate_in_xz_plane_to_zero_x_component, m_rotate_in_xy_plane_to_zero_y_component);
 }
 
 
