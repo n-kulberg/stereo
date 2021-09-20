@@ -29,6 +29,15 @@ public:
 	using	row_type = Point3D<T>;
 
 	using parent::parent;
+	using parent:: operator=;
+
+	//! access functions
+	value_type& at(size_t i, size_t j){ return row(i).at(j); }
+	const value_type& at(size_t i, size_t j) const { return row(i).at(j); }
+	using parent::operator [];
+	row_type& row(size_t i){ return parent::at(i); }
+	const row_type& row(size_t i) const { return parent::at(i); }
+
 	template<class T2>
 	self& operator=(const Matrix3D<T2>& other){ parent::operator=(other); return *this; }
 	self& operator=(const self& other){ parent::operator=(other); return *this; }
