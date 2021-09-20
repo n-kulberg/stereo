@@ -66,9 +66,9 @@ protected:
 
 
 private:
-	constexpr size_t m_x_position() const { return 0; }
-	constexpr size_t m_y_position() const { return 1; }
-	constexpr size_t m_z_position() const { return 2; }
+	static constexpr size_t m_x_position() { return 0; }
+	static constexpr size_t m_y_position() { return 1; }
+	static constexpr size_t m_z_position() { return 2; }
 };
 
 
