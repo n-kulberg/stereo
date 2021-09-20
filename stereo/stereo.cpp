@@ -21,9 +21,16 @@ int	main(int, char **)
 {
 	try
 	{
-		TestVectorOperations();
-		TestSegment();
-		TestMatrix();
+		if(1)
+		{
+			TestSegment3Distance();
+		}
+		else
+		{
+			TestVectorOperations();
+			TestSegment();
+			TestMatrix();
+		}
 		fflush(stdout);
 
 	}

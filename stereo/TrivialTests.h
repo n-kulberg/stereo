@@ -15,6 +15,7 @@
 void	TestVectorOperations();
 void	TestSegment();
 void	TestMatrix();
+void	TestSegment3Distance();
 
 
 #endif //__TrivialTests_h
