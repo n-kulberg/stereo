@@ -12,7 +12,7 @@
 //
 //------------------------------------------------------------------
 
-void	TestArithmeticsPoint();
+void	TestVectorOperations();
 void	TestSegment();
 void	TestMatrix();
 

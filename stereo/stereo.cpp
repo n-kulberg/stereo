@@ -21,7 +21,7 @@ int	main(int, char **)
 {
 	try
 	{
-		TestArithmeticsPoint();
+		TestVectorOperations();
 		TestSegment();
 		TestMatrix();
 		fflush(stdout);

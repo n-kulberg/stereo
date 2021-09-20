@@ -75,11 +75,17 @@ void	TestSegment()
 	cout << "s1*=s2 = " << (s1*=2) << endl;
 	cout << "s1+=s1 = " << (s1+=s1) << endl;
 
+	s3_F64	ss{p3_F64{1,2,3},p3_F64{2,4,6}};
+
+	cout << "ss before offset = " << ss << endl;
+	cout << "ss moved to origin = " << (ss-=ss.p1()) << endl;
+
+
 }
 
 
 
-void	TestArithmeticsPoint()
+void	TestVectorOperations()
 {
 	cout << "---------------Test point------------------------" << endl;
 	p3_F64	p1 ={1,2,3};
