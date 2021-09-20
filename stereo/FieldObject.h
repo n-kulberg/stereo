@@ -126,7 +126,7 @@ public:
 	double	l2_norma() const{ return sqrt(double(scalar_product(*this))); }
 
 
-private:
+protected:
 	T	m_data[n_dimensions()];
 
 		// data operation algorithms
