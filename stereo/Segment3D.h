@@ -34,7 +34,7 @@ public:
 	point_type& p2(){ return at(m_p2()); }
 
 	const point_type& p1() const { return at(m_p1()); }
-	const point_type& p2() const { return at(m_p2)(); }
+	const point_type& p2() const { return at(m_p2()); }
 
 	point_type	radius_vector() const { return p2()-p1(); };
 	double length() const{ return l2_norma(radius_vector()); }
