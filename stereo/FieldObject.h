@@ -143,18 +143,16 @@ private:
 	template<class T2, class C2, class F>
 	child_type	return_binary_action(const self& p1, const FieldObject<T2, C2, N>& p2, F f) const
 	{
-		//v
-		child_type result;
+		self result;
 		for(size_t i = 0; i < n_dimensions(); ++i) result.at(i) = f(p1.at(i), p2.at(i));
-		return result;
+		return std::move(result.child_ref());
 	}
 	template<class T2, class F>
 	child_type	return_binary_action(const self& p1, const T2& scalar, F f) const
 	{
-		//s
-		child_type result;
+		self result;
 		for(size_t i = 0; i < n_dimensions(); ++i) result.at(i) = f(p1.at(i), scalar);
-		return result;
+		return std::move(result.child_ref());
 	}
 
 	template<class T2, class C2, class F>
