@@ -30,17 +30,22 @@ public:
 	Point3D() = default;
 	Point3D(const self&) = default;
 	//since the class is trivial, move constructor is not needed
-	Point3D(const T& in_x, const T& in_y, const T& in_z){ x()=in_x; y() = in_y; z() = in_z; }
-	Point3D(T& in_x, const T& in_y, const T& in_z){ x()=in_x; y = in_y; z() = in_z; }
 
-	template<class T2>
-	self& operator=(const Point3D<T2>& other){ return parent::operator=(other); }
-	self& operator=(const self& other){ return parent::operator=(other); }
+	Point3D(const T& in_x, const T& in_y, const T& in_z)
+	{ 
+		static_assert(m_x_position()==0 && m_y_position()==1 && m_z_position()==2, "Argument order in this constructor is xyz. To use other possible order (e.g., zyx) reassign positions functions");
+		x()=in_x; 
+		y()=in_y; 
+		z()=in_z; 
+	}
 
+	//! use inherited constructors and operator=
 	using parent::parent;
+	using parent::operator=;
+	
 	using parent::n_dimensions;
 
-
+	//! access to vector components
 	T& x(){ return at(m_x_position()); }
 	T& y(){ return at(m_y_position()); }
 	T& z(){ return at(m_z_position()); }
