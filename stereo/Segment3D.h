@@ -39,7 +39,21 @@ public:
 	point_type	radius_vector() const { return p2()-p1(); };
 	double length() const{ return l2_norma(radius_vector()); }
 
+	//parallel translation by vector
+	//NB no references in these functions, high risk of side effects
+	template<class T2> self& operator += (Point3D<T2> translation_vector){ parent::modify_binary_action(*this, translation_vector, [](Point3D<T>& x, Point3D<T2> y){x += y;}); return *this; }
+	template<class T2> self& operator -= (Point3D<T2> translation_vector){ parent::modify_binary_action(*this, translation_vector, [](Point3D<T>& x, Point3D<T2> y){x -= y;}); return *this; }
+	template<class T2> self operator + (Point3D<T2> translation_vector) const { return parent::return_binary_action(*this, translation_vector, [](const Point3D<T>& x, const Point3D<T2>& y){return x + y;}); }
+	template<class T2> self operator - (Point3D<T2> translation_vector) const { return parent::return_binary_action(*this, translation_vector, [](const Point3D<T>& x, const Point3D<T2>& y){return x - y;}); }
+
+
+	//inherited operations
 	using parent::at;
+	using parent::operator +=;
+	using parent::operator -=;
+	using parent::operator +;
+	using parent::operator -;
+
 
 private:
 	static constexpr size_t m_p1() { return 0; }
