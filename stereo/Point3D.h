@@ -18,7 +18,8 @@ namespace kns_test
 {
 
 
-
+//! \brief Point in 3-dimension space.
+//! \detailed Point in space is identical to its radius-vector. For this reason Point is element of the linear vector space (field). Thus, it is inherited from FieldObject class 
 template<class T>
 class Point3D : public FieldObject<T, Point3D<T>, 3>
 {
@@ -54,8 +55,9 @@ public:
 	const T& y() const { return at(m_y_position()); }
 	const T& z() const { return at(m_z_position()); }
 
-
-	template<class T2> self vector_product(const Point3D<T2>& other) const
+	//! \brief vector cross product https://en.wikipedia.org/wiki/Cross_product
+	//! NB, not operator* to avoid confusion with multiplication by a scalar
+	template<class T2> self cross_product(const Point3D<T2>& other) const
 	{
 		self result;
 		result.x() = y()*other.z() - z()*other.y();
@@ -71,6 +73,7 @@ protected:
 
 
 private:
+	//! Functions that determine named vector components order in memory. It may be convenient for different tasks to use (x,y,z) or (z,y,x) order. 
 	static constexpr size_t m_x_position() { return 0; }
 	static constexpr size_t m_y_position() { return 1; }
 	static constexpr size_t m_z_position() { return 2; }
