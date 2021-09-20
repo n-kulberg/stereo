@@ -38,16 +38,16 @@ public:
 	self& operator=(const self& other){ return parent::operator=(other); }
 
 	using parent::parent;
-	//using parent::data;
 	using parent::n_dimensions;
 
 
-	T& x(){ return at(m_x); }
-	T& y(){ return at(m_y); }
-	T& z(){ return at(m_z); }
-	const T& x() const { return at(m_x); }
-	const T& y() const { return at(m_y); }
-	const T& z() const { return at(m_z); }
+	T& x(){ return at(m_x_position()); }
+	T& y(){ return at(m_y_position()); }
+	T& z(){ return at(m_z_position()); }
+
+	const T& x() const { return at(m_x_position()); }
+	const T& y() const { return at(m_y_position()); }
+	const T& z() const { return at(m_z_position()); }
 
 
 	template<class T2> self vector_product(const Point3D<T2>& other) const
@@ -66,7 +66,9 @@ protected:
 
 
 private:
-	const size_t m_z = 2, m_y = 1, m_x = 0;
+	constexpr size_t m_x_position() const { return 0; }
+	constexpr size_t m_y_position() const { return 1; }
+	constexpr size_t m_z_position() const { return 2; }
 };
 
 

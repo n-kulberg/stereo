@@ -33,11 +33,11 @@ public:
 	self& operator=(const Segment3D<T2>& other){ parent::operator=(other); return *this; }
 	self& operator=(const self& other){ parent::operator=(other); return *this; }
 
-	point_type& p1(){ return at(m_p1); }
-	point_type& p2(){ return at(m_p2); }
+	point_type& p1(){ return at(m_p1()); }
+	point_type& p2(){ return at(m_p2()); }
 
-	const point_type& p1() const { return at(m_p1); }
-	const point_type& p2() const { return at(m_p2); }
+	const point_type& p1() const { return at(m_p1()); }
+	const point_type& p2() const { return at(m_p2)(); }
 
 	point_type	radius_vector() const { return p2()-p1(); };
 	double length() const{ return l2_norma(radius_vector()); }
@@ -45,8 +45,8 @@ public:
 	using parent::at;
 
 private:
-	const size_t m_p1 = 0;
-	const size_t m_p2 = 1;
+	constexpr size_t m_p1() const { return 0; }
+	constexpr size_t m_p2() const { return 1; }
 };
 
 
