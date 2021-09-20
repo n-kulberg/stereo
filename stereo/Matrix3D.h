@@ -14,6 +14,8 @@
 //------------------------------------------------------------------
 
 #include "Point3D.h"
+#include "Segment3D.h"
+
 #include <stdexcept>
 #include <cmath>
 
@@ -94,6 +96,13 @@ template<class T1, class T2>
 auto	matrix_multiply(const Matrix3D<T1>& m, const Matrix3D<T2>& m2)
 {
 	return m.multiply(m2);
+}
+
+//! Apply transform to segment
+template<class T1, class T2>
+auto	matrix_multiply(const Matrix3D<T1>& m, const Segment3D<T2>& seg)
+{
+	return Segment3D<T1>{m.multiply(seg.p1()), m.multiply(seg.p2())};
 }
 
 
