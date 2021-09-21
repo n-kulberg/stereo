@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="sources\ComputeDistance.cpp" />
     <ClCompile Include="sources\stereo.cpp" />
     <ClCompile Include="sources\TrivialTests.cpp" />
   </ItemGroup>
