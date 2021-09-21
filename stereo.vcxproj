@@ -151,8 +151,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="stereo.cpp" />
-    <ClCompile Include="TrivialTests.cpp" />
+    <ClCompile Include="sources\stereo.cpp" />
+    <ClCompile Include="sources\TrivialTests.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
