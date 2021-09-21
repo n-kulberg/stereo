@@ -143,6 +143,8 @@ public:
 	template<class ST> child_type operator * (ST scalar) const noexcept { return return_binary_action(*this, scalar, [](const T& x, const ST& y){return x * y;}); }
 	template<class ST> child_type operator / (ST scalar) const noexcept { return return_binary_action(*this, scalar, [](const T& x, const ST& y){return x / y;}); }
 
+	child_type operator - () const noexcept { return return_binary_action(*this, *this, [](const T& x, const T){return -x;}); }
+
 	//! \brief scalar product by another object of similar field
 	template<class T2, class C2> value_type scalar_product(const FieldObject<T2, C2, N>& other) const noexcept { return acquire_binary_action(*this, other, [](const T& x, const T2& y){return kns_test::scalar_product(x, y);}); }
 
@@ -215,11 +217,18 @@ T1 sp(const FieldObject<T1, CT1, N>& x, const FieldObject<T2, CT2, N>& y) noexce
 	return scalar_product(x,y);
 }
 
-//! \brief L1 norma of field objectб non-member function
+//! \brief L1 norma of field object, non-member function
 template<class T1, class CT1, size_t N>
 T1	l1_norma(const FieldObject<T1, CT1, N>& x) noexcept 
 {
 	return x.l1_norma();
+}
+
+//! \brief L2 norma of field object, non-member function
+template<class T1, class CT1, size_t N>
+T1	l2_norma(const FieldObject<T1, CT1, N>& x) noexcept
+{
+	return x.l2_norma();
 }
 
 
