@@ -1,6 +1,7 @@
 ﻿#include "ComputeDistance.h"
 #include "Matrix3D.h"
 #include "FieldOutput.h"
+#include "MatrixUtilities.h"
 
 #include <iostream>
 

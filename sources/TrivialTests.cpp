@@ -4,6 +4,7 @@
 #include "FieldOutput.h"
 #include <cmath>
 #include "ComputeDistance.h"
+#include "MatrixUtilities.h"
 
 //------------------------------------------------------------------
 //
