@@ -55,24 +55,24 @@ public:
 	using iterator = T*;
 	using const_iterator = const T*;
 
-	iterator begin(){ return m_data; }
-	iterator end(){ return m_data + n_dimensions(); }
-	const_iterator cbegin() const { return m_data; }
-	const_iterator cend() const { return m_data + n_dimensions(); }
+	iterator begin() noexcept { return m_data; }
+	iterator end() noexcept { return m_data + n_dimensions(); }
+	const_iterator cbegin() const noexcept { return m_data; }
+	const_iterator cend() const noexcept { return m_data + n_dimensions(); }
 
-	operator child_type& ()
+	operator child_type& () noexcept
 	{ 
  		static_assert(sizeof(self) == sizeof(child_type), "FieldObject<T,CHILD_T,N>::operator child_type: Incompatible self and child types.");
 		return *reinterpret_cast<child_type*>(this); 
 	}
-	operator const child_type& () const 
+	operator const child_type& () const noexcept
 	{
  		static_assert(sizeof(self) == sizeof(child_type), "FieldObject<T,CHILD_T,N>::operator child_type: Incompatible self and child types.");
 		return *static_cast<child_type*>(this); 
 	}
 
-	child_type& child_ref(){ return (*this); }
-	const child_type& child_ref() const { return (*this); }
+	child_type& child_ref() noexcept { return (*this); }
+	const child_type& child_ref() const noexcept { return (*this); }
 
 
 	T& at(size_t i){ return m_data[i]; }
@@ -123,58 +123,58 @@ public:
 		return result;
 	}
 
-	template<class T2, class C2> bool operator != (const FieldObject<T2, C2, N>& other) const noexcept { return !operator=(other); } 
+	template<class T2, class C2> bool operator != (const FieldObject<T2, C2, N>& other) const noexcept { return !operator==(other); } 
 	template<class T2, class C2> bool operator > (const FieldObject<T2, C2, N>& other) const noexcept { return l1_norma() > other.l1_norma(); }
 	template<class T2, class C2> bool operator >= (const FieldObject<T2, C2, N>& other) const noexcept { return l1_norma() >= other.l1_norma(); }
 	template<class T2, class C2> bool operator < (const FieldObject<T2, C2, N>& other) const noexcept { return l1_norma() < other.l1_norma(); }
 	template<class T2, class C2> bool operator <= (const FieldObject<T2, C2, N>& other) const noexcept { return l1_norma() <= other.l1_norma(); }
 
 	// linear algebra operations
-	template<class T2, class C2> child_type& operator += (const FieldObject<T2, C2, N>& other){ modify_binary_action(*this, other, [](T& x, const T2& y){x += y;}); return child_ref(); }
-	template<class T2, class C2> child_type& operator -= (const FieldObject<T2, C2, N>& other){ modify_binary_action(*this, other, [](T& x, const T2& y){x -= y;}); return child_ref(); }
+	template<class T2, class C2> child_type& operator += (const FieldObject<T2, C2, N>& other) noexcept { modify_binary_action(*this, other, [](T& x, const T2& y){x += y;}); return child_ref(); }
+	template<class T2, class C2> child_type& operator -= (const FieldObject<T2, C2, N>& other) noexcept { modify_binary_action(*this, other, [](T& x, const T2& y){x -= y;}); return child_ref(); }
 
-	//NB no references in these functions argument, high risk of side effects
-	template<class ST> child_type& operator *= (ST scalar){ modify_binary_action(*this, scalar, [](T& x, const ST& y){x *= y;}); return child_ref(); }
-	template<class ST> child_type& operator /= (ST scalar){ modify_binary_action(*this, scalar, [](T& x, const ST& y){x /= y;}); return child_ref(); }
+	//NB no references in these functions argument, high risk of side effects: e.g. Point3D<double> p{2,3,4}; p/=p.x() will result in {1,3,4}
+	template<class ST> child_type& operator *= (ST scalar) noexcept { modify_binary_action(*this, scalar, [](T& x, const ST& y){x *= y;}); return child_ref(); }
+	template<class ST> child_type& operator /= (ST scalar) noexcept{ modify_binary_action(*this, scalar, [](T& x, const ST& y){x /= y;}); return child_ref(); }
 
-	template<class T2, class C2> child_type operator + (const FieldObject<T2, C2, N>& other) const { return return_binary_action(*this, other, [](const T& x, const T2& y){return x + y;}); }
-	template<class T2, class C2> child_type operator - (const FieldObject<T2, C2, N>& other) const { return return_binary_action(*this, other, [](const T& x, const T2& y){return x - y;}); }
+	template<class T2, class C2> child_type operator + (const FieldObject<T2, C2, N>& other) const noexcept { return return_binary_action(*this, other, [](const T& x, const T2& y){return x + y;}); }
+	template<class T2, class C2> child_type operator - (const FieldObject<T2, C2, N>& other) const noexcept { return return_binary_action(*this, other, [](const T& x, const T2& y){return x - y;}); }
 
-	template<class ST> child_type operator * (ST scalar) const { return return_binary_action(*this, scalar, [](const T& x, const ST& y){return x * y;}); }
-	template<class ST> child_type operator / (ST scalar) const { return return_binary_action(*this, scalar, [](const T& x, const ST& y){return x / y;}); }
+	template<class ST> child_type operator * (ST scalar) const noexcept { return return_binary_action(*this, scalar, [](const T& x, const ST& y){return x * y;}); }
+	template<class ST> child_type operator / (ST scalar) const noexcept { return return_binary_action(*this, scalar, [](const T& x, const ST& y){return x / y;}); }
 
 	//! \brief scalar product by another object of similar field
-	template<class T2, class C2> value_type scalar_product(const FieldObject<T2, C2, N>& other) const { return acquire_binary_action(*this, other, [](const T& x, const T2& y){return kns_test::scalar_product(x, y);}); }
+	template<class T2, class C2> value_type scalar_product(const FieldObject<T2, C2, N>& other) const noexcept { return acquire_binary_action(*this, other, [](const T& x, const T2& y){return kns_test::scalar_product(x, y);}); }
 
 	//! \brief Lebesgue norma of the field object
-	double	l2_norma() const{ return sqrt(static_cast<double>(scalar_product(*this))); }
+	double	l2_norma() const noexcept { return sqrt(static_cast<double>(scalar_product(*this))); }
 
 	//! \brief L1 norma of the field object. It is a bit faster than 
-	value_type l1_norma () const { return acquire_binary_action(*this, *this, [](const T& x, const T&){return kns_test::l1_norma(x);}); }
+	value_type l1_norma () const noexcept { return acquire_binary_action(*this, *this, [](const T& x, const T&){return kns_test::l1_norma(x);}); }
 
 protected:
 	T	m_data[n_dimensions()];
 
 		// data operation algorithms
 	template<class T2, class C2, class F>
-	void	modify_binary_action(self& first, const FieldObject<T2, C2, N>& second, F f)
+	void	modify_binary_action(self& first, const FieldObject<T2, C2, N>& second, F f) noexcept 
 	{
 		for(size_t i = 0; i < n_dimensions(); ++i) f(first.at(i), second.at(i));
 	}
 	template<class ST, class F>
-	void	modify_binary_action(self& first, ST second, F f)
+	void	modify_binary_action(self& first, ST second, F f) noexcept 
 	{
 		for(size_t i = 0; i < n_dimensions(); ++i){f(first.at(i), second);}
 	}
 	template<class T2, class C2, class F>
-	child_type	return_binary_action(const self& first, const FieldObject<T2, C2, N>& second, F f) const
+	child_type	return_binary_action(const self& first, const FieldObject<T2, C2, N>& second, F f) const noexcept 
 	{
 		self result;
 		for(size_t i = 0; i < n_dimensions(); ++i) result.at(i) = f(first.at(i), second.at(i));
 		return std::move(result.child_ref());
 	}
 	template<class ST, class F>
-	child_type	return_binary_action(const self& first, ST second, F f) const
+	child_type	return_binary_action(const self& first, ST second, F f) const noexcept 
 	{
 		self result;
 		for(size_t i = 0; i < n_dimensions(); ++i) {result.at(i) = f(first.at(i), second);}
@@ -182,7 +182,7 @@ protected:
 	}
 
 	template<class T2, class C2, class F>
-	value_type	acquire_binary_action(const self& first, const FieldObject<T2, C2, N>& second, F f) const
+	value_type	acquire_binary_action(const self& first, const FieldObject<T2, C2, N>& second, F f) const noexcept 
 	{
 		value_type result(0);
 		for(size_t i = 0; i < n_dimensions(); ++i) result += f(first.at(i), second.at(i));
@@ -197,21 +197,21 @@ template<class T, class CT, size_t N> class is_field_object <FieldObject<T,CT,N>
 
 //! \brief Scalar product of similar field objects, external function
 template<class T1, class T2, class CT1, class CT2, size_t N>
-T1	scalar_product(const FieldObject<T1,CT1,N>& x, const FieldObject<T2,CT2,N>& y)
+T1	scalar_product(const FieldObject<T1,CT1,N>& x, const FieldObject<T2,CT2,N>& y) noexcept 
 {
 	return x.scalar_product(y);
 }
 
 //! \brief Shorter alias for scalar product
 template<class T1, class T2, class CT1, class CT2, size_t N>
-T1 sp(const FieldObject<T1, CT1, N>& x, const FieldObject<T2, CT2, N>& y)
+T1 sp(const FieldObject<T1, CT1, N>& x, const FieldObject<T2, CT2, N>& y) noexcept 
 {
 	return scalar_product(x,y);
 }
 
-//! \brief L1 norma of field object
+//! \brief L1 norma of field objectб non-member function
 template<class T1, class CT1, size_t N>
-T1	l1_norma(const FieldObject<T1, CT1, N>& x)
+T1	l1_norma(const FieldObject<T1, CT1, N>& x) noexcept 
 {
 	return x.l1_norma();
 }
