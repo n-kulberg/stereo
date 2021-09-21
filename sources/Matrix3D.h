@@ -15,6 +15,7 @@
 
 #include "Point3D.h"
 #include "Segment3D.h"
+#include "Epsilon.h"
 
 #include <stdexcept>
 #include <cmath>
@@ -105,22 +106,22 @@ auto	matrix_multiply(const Matrix3D<T1>& m, const Segment3D<T2>& seg) noexcept
 
 // utilities
 
+//! returns identity transform matrix
 template<class T=double> 
 Matrix3D<T> identity_matrix() noexcept
 {
 	return Matrix3D<T>{ Point3D<T>{ 1, 0, 0 }, Point3D<T>{0,1,0}, Point3D<T>{0,0,1} };
 }
 
-
+//!	Returns matrix that rotates the point p so that it lays on z axis
 template<class T>
 m3_F64	rotation_matrix_to_z_axis(const Point3D<T>& p)
 {
-	const double	epsilon = 1e-9;
 	double	r_xyz = p.l2_norma();
-	if(!std::isnormal(p.l2_norma())) throw std::invalid_argument("");
+	if(!std::isnormal(r_xyz) || is_almost_zero(r_xyz)) throw std::invalid_argument("rotation_matrix_to_z_axis(const Point3D<T>& p), wrong point");
 
 	double	r_xy = hypot(p.x(), p.y());
-	if(r_xy/r_xyz < epsilon) return identity_matrix();//no rotation is needed
+	if(is_small_o(r_xy, r_xyz)) return identity_matrix();//no rotation is needed
 
 	double	cosfi = p.x()/r_xy;
 	double	sinfi = p.y()/r_xy;
