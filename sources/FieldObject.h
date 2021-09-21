@@ -149,7 +149,7 @@ public:
 	//! \brief Lebesgue norma of the field object
 	double	l2_norma() const noexcept { return sqrt(static_cast<double>(scalar_product(*this))); }
 
-	//! \brief L1 norma of the field object. It is a bit faster than 
+	//! \brief L1 norma of the field object. It is a bit faster than L2
 	value_type l1_norma () const noexcept { return acquire_binary_action(*this, *this, [](const T& x, const T&){return kns_test::l1_norma(x);}); }
 
 protected:
