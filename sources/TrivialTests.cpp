@@ -109,6 +109,13 @@ void	TestVectorOperations()
 
 	std::cout << "p1 = " << p1 << endl;
 	std::cout << "p2 = " << p2 << endl;
+
+	std::cout << "(p1==p1) = " << (p1==p1) << endl;
+	std::cout << "(p1==p2) = " << (p1==p2) << endl;
+	std::cout << "(p1>p2) = " << (p1>p2) << endl;
+	std::cout << "(p1<p2) = " << (p1<p2) << endl;
+
+
 	std::cout << "p1+p2 = " << p1+p2 << endl;
 	std::cout << "scalar_product(p1,p2) = " << p1.scalar_product(p2) << endl;
 	std::cout << "p1*2 = " << p1*2. << endl;

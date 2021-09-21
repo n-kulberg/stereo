@@ -23,10 +23,18 @@ namespace kns_test
 
 //! \brief scalar product operation for built-in arithmetic types
 template<class T1, class T2>
-typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmetic<T2>::value, T1>::type	scalar_product(const T1& x, const T2& y)
+typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmetic<T2>::value, T1>::type	scalar_product(const T1& x, const T2& y) noexcept
 {
 	return x*y;
 }
+
+//! \brief scalar product operation for built-in arithmetic types
+template<class T1>
+typename std::enable_if<std::is_arithmetic<T1>::value, T1>::type	l1_norma(const T1& x) noexcept
+{
+	return abs(x);
+}
+
 
 //! \brief Field object is the element of field set (https://en.wikipedia.org/wiki/Field_(mathematics))
 //! \detailed We suppose that the field is the synonym of the "linear vector space".
@@ -75,27 +83,12 @@ public:
 
 
 	// constructors
+	//since the class is trivial, move constructor is not needed
 	FieldObject() = default;
 
 	template<class T2, class C2>
 	FieldObject(const FieldObject<T2, C2, N>& other){ std::copy(other.cbegin(), other.cend(), begin()); }
 	FieldObject(const self&) = default;
-
-	template<class T2, class C2>
-	child_type& operator=(const FieldObject<T2, C2, N>& other)
-	{
-		std::copy(other.cbegin(), other.cend(), begin());
-		return child_ref();
-	}
-
-	child_type& operator=(const self& other)
-	{
-		std::copy(other.cbegin(), other.cend(), begin());
-		return child_ref();
-	}//template can not replace implicit operator=
-
-
-	//since the class is trivial, move constructor is not needed
 
 	template<class T2>
 	FieldObject(const std::initializer_list<T2>& il)
@@ -105,19 +98,48 @@ public:
 		for(auto it = il.begin(), ie = il.end(); it!=ie; ++it, ++d) *d=static_cast<T>(*it);//sorry, std::copy doesn't work for initializer list
 	}
 
+	//operator=
+	template<class T2, class C2>
+	child_type& operator=(const FieldObject<T2, C2, N>& other)
+	{
+		std::copy(other.cbegin(), other.cend(), begin());
+		return child_ref();
+	}
 
-		// linear algebra operations
+	//template can not replace implicit operator=
+	child_type& operator=(const self& other)
+	{
+		std::copy(other.cbegin(), other.cend(), begin());
+		return child_ref();
+	}
+
+	// compare operators
+	template<class T2, class C2>
+	bool operator==(const FieldObject<T2, C2, N>& other) const noexcept
+	{
+		bool	result = true;
+		auto	d = cbegin();
+		for(auto it = other.cbegin(), ie = other.cend(); it!=ie; ++it, ++d) result &= (*d==*it);
+		return result;
+	}
+
+	template<class T2, class C2> bool operator != (const FieldObject<T2, C2, N>& other) const noexcept { return !operator=(other); } 
+	template<class T2, class C2> bool operator > (const FieldObject<T2, C2, N>& other) const noexcept { return l1_norma() > other.l1_norma(); }
+	template<class T2, class C2> bool operator >= (const FieldObject<T2, C2, N>& other) const noexcept { return l1_norma() >= other.l1_norma(); }
+	template<class T2, class C2> bool operator < (const FieldObject<T2, C2, N>& other) const noexcept { return l1_norma() < other.l1_norma(); }
+	template<class T2, class C2> bool operator <= (const FieldObject<T2, C2, N>& other) const noexcept { return l1_norma() <= other.l1_norma(); }
+
+	// linear algebra operations
 	template<class T2, class C2> child_type& operator += (const FieldObject<T2, C2, N>& other){ modify_binary_action(*this, other, [](T& x, const T2& y){x += y;}); return child_ref(); }
 	template<class T2, class C2> child_type& operator -= (const FieldObject<T2, C2, N>& other){ modify_binary_action(*this, other, [](T& x, const T2& y){x -= y;}); return child_ref(); }
 
-	//NB no references in these functions, high risk of side effects
+	//NB no references in these functions argument, high risk of side effects
 	template<class ST> child_type& operator *= (ST scalar){ modify_binary_action(*this, scalar, [](T& x, const ST& y){x *= y;}); return child_ref(); }
 	template<class ST> child_type& operator /= (ST scalar){ modify_binary_action(*this, scalar, [](T& x, const ST& y){x /= y;}); return child_ref(); }
 
 	template<class T2, class C2> child_type operator + (const FieldObject<T2, C2, N>& other) const { return return_binary_action(*this, other, [](const T& x, const T2& y){return x + y;}); }
 	template<class T2, class C2> child_type operator - (const FieldObject<T2, C2, N>& other) const { return return_binary_action(*this, other, [](const T& x, const T2& y){return x - y;}); }
 
-	//NB no references in these functions, high risk of side effects
 	template<class ST> child_type operator * (ST scalar) const { return return_binary_action(*this, scalar, [](const T& x, const ST& y){return x * y;}); }
 	template<class ST> child_type operator / (ST scalar) const { return return_binary_action(*this, scalar, [](const T& x, const ST& y){return x / y;}); }
 
@@ -125,8 +147,10 @@ public:
 	template<class T2, class C2> value_type scalar_product(const FieldObject<T2, C2, N>& other) const { return acquire_binary_action(*this, other, [](const T& x, const T2& y){return kns_test::scalar_product(x, y);}); }
 
 	//! \brief Lebesgue norma of the field object
-	double	l2_norma() const{ return sqrt(double(scalar_product(*this))); }
+	double	l2_norma() const{ return sqrt(static_cast<double>(scalar_product(*this))); }
 
+	//! \brief L1 norma of the field object. It is a bit faster than 
+	value_type l1_norma () const { return acquire_binary_action(*this, *this, [](const T& x, const T&){return kns_test::l1_norma(x);}); }
 
 protected:
 	T	m_data[n_dimensions()];
@@ -171,7 +195,7 @@ protected:
 template<class T> class is_field_object : public std::false_type {};
 template<class T, class CT, size_t N> class is_field_object <FieldObject<T,CT,N>> : public std::true_type {};
 
-//! \brief Scalar product of similar field objects, external operator
+//! \brief Scalar product of similar field objects, external function
 template<class T1, class T2, class CT1, class CT2, size_t N>
 T1	scalar_product(const FieldObject<T1,CT1,N>& x, const FieldObject<T2,CT2,N>& y)
 {
@@ -184,6 +208,14 @@ T1 sp(const FieldObject<T1, CT1, N>& x, const FieldObject<T2, CT2, N>& y)
 {
 	return scalar_product(x,y);
 }
+
+//! \brief L1 norma of field object
+template<class T1, class CT1, size_t N>
+T1	l1_norma(const FieldObject<T1, CT1, N>& x)
+{
+	return x.l1_norma();
+}
+
 
 }//namespace kns_test
 
