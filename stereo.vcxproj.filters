@@ -24,5 +24,8 @@
     <ClCompile Include="sources\ComputeDistance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sources\SectionsDistanceTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

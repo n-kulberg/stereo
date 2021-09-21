@@ -21,7 +21,7 @@ int	main(int, char **)
 {
 	try
 	{
-		if(0)
+		if(1)
 		{
 			TestSegment3Distance();
 		}

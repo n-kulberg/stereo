@@ -86,22 +86,6 @@ void	TestSegment()
 
 }
 
-
-void	TestSegment3Distance()
-{
-	s3_F64	s1{p3_F64{1,1,0},p3_F64{2,0,2}};
-	s3_F64	s2{p3_F64{1,2,3},p3_F64{2,4,6}};
-
-	cout << "s1 = " << s1 << "its radius-vector = " << s1.radius_vector() << endl;
-	cout << "s2 = " << s2 << "its radius-vector = " << s2.radius_vector() << endl;
-
-	auto d = ComputeDistance(s1, s2);
-
-	cout << "Distance between s1 and s2 = " << d;
-
-}
-
-
 void	TestVectorOperations()
 {
 	cout << "---------------Test point------------------------" << endl;
