@@ -53,6 +53,30 @@ m3_F64	rotation_matrix_to_z_axis(const Point3D<T>& p)
 	return matrix_multiply(m_rotate_in_xz_plane_to_zero_x_component, m_rotate_in_xy_plane_to_zero_y_component);
 }
 
+template<class T>
+m3_F64	rotation_matrix_to_x_axis(const Point3D<T>& p)
+{
+	m3_F64	rot_z_to_x =
+	{
+		p3_F64{0, 0, -1},
+		p3_F64{0, 1, 0},
+		p3_F64{1, 0, 0},
+	};
+	return matrix_multiply(rot_z_to_x, rotation_matrix_to_z_axis(p));
+}
+
+template<class T>
+m3_F64	rotation_matrix_to_y_axis(const Point3D<T>& p)//TODO it's stub, not tested
+{
+	m3_F64	rot_z_to_y =
+	{
+		p3_F64{0, -1, 0},
+		p3_F64{1, 0, 0},
+		p3_F64{0, 0, 1},
+	};
+	return matrix_multiply(rot_z_to_y, rotation_matrix_to_z_axis(p));//when it's needed, test action and remove '_'
+}
+
 
 }//namespace kns_test
 
