@@ -155,17 +155,21 @@ public:
 protected:
 	T	m_data[n_dimensions()];
 
-		// data operation algorithms
+	//! \brief Apply operation F to every pair of elements in first and second argument. F modifies first argument
 	template<class T2, class C2, class F>
 	void	modify_binary_action(self& first, const FieldObject<T2, C2, N>& second, F f) noexcept 
 	{
 		for(size_t i = 0; i < n_dimensions(); ++i) f(first.at(i), second.at(i));
 	}
+
+	//! \brief Apply operation F to every element in first. Second argument is the same in the cycle. F modifies first argument
 	template<class ST, class F>
 	void	modify_binary_action(self& first, ST second, F f) noexcept 
 	{
 		for(size_t i = 0; i < n_dimensions(); ++i){f(first.at(i), second);}
 	}
+
+	//! \brief Apply operation F to every pair of elements in first and second argument. Both arguments are constant, result is returned
 	template<class T2, class C2, class F>
 	child_type	return_binary_action(const self& first, const FieldObject<T2, C2, N>& second, F f) const noexcept 
 	{
@@ -173,6 +177,8 @@ protected:
 		for(size_t i = 0; i < n_dimensions(); ++i) result.at(i) = f(first.at(i), second.at(i));
 		return std::move(result.child_ref());
 	}
+
+	//! \brief Apply operation F to every element in first. Second argument is the same in the cycle. Both arguments are constant, result is returned
 	template<class ST, class F>
 	child_type	return_binary_action(const self& first, ST second, F f) const noexcept 
 	{
