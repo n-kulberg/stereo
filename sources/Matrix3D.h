@@ -35,32 +35,29 @@ public:
 	using parent:: operator=;
 
 	//! access functions
-	value_type& at(size_t i, size_t j){ return row(i).at(j); }
-	const value_type& at(size_t i, size_t j) const { return row(i).at(j); }
+	value_type& at(size_t i, size_t j) noexcept { return row(i).at(j); }
+	const value_type& at(size_t i, size_t j) const noexcept { return row(i).at(j); }
 	using parent::operator [];
-	row_type& row(size_t i){ return parent::at(i); }
-	const row_type& row(size_t i) const { return parent::at(i); }
+	row_type& row(size_t i) noexcept { return parent::at(i); }
+	const row_type& row(size_t i) const noexcept { return parent::at(i); }
 
 
-	self transposed() const
+	self transposed() const noexcept
 	{
-		return self
-		{
-			row_type{at(0,0), at(1,0), at(2,0)},	row_type{at(0,1), at(1,1), at(2,1)}, row_type{at(0,2), at(1,2), at(2,2)}
-		};
+		return self	{ row_type{at(0,0), at(1,0), at(2,0)},	row_type{at(0,1), at(1,1), at(2,1)}, row_type{at(0,2), at(1,2), at(2,2)}};
 	}
 
 
 	//! \brief Left multiply matrix by vector
 	template<class T2>
-	row_type multiply(const Point3D<T2> & other) const
+	row_type multiply(const Point3D<T2> & other) const noexcept
 	{
 		return row_type	{scalar_product(row(0), other), scalar_product(row(1), other), scalar_product(row(2), other)};
 	}
 
 	//! \brief Multiply matrix by matrix
 	template<class T2>
-	self multiply(const Matrix3D<T2>& other) const
+	self multiply(const Matrix3D<T2>& other) const noexcept
 	{
 		auto tr = other.transposed();
 		return self
@@ -87,20 +84,20 @@ using m3_I16 = Matrix3D<int16_t>;
 
 //! non-member functions for matrix multiply
 template<class T1, class T2>
-auto	matrix_multiply(const Matrix3D<T1> &m, const Point3D<T2> &p)
+auto	matrix_multiply(const Matrix3D<T1> &m, const Point3D<T2> &p) noexcept
 {
 	return m.multiply(p);
 }
 
 template<class T1, class T2>
-auto	matrix_multiply(const Matrix3D<T1>& m, const Matrix3D<T2>& m2)
+auto	matrix_multiply(const Matrix3D<T1>& m, const Matrix3D<T2>& m2) noexcept
 {
 	return m.multiply(m2);
 }
 
 //! Apply transform to segment
 template<class T1, class T2>
-auto	matrix_multiply(const Matrix3D<T1>& m, const Segment3D<T2>& seg)
+auto	matrix_multiply(const Matrix3D<T1>& m, const Segment3D<T2>& seg) noexcept
 {
 	return Segment3D<T1>{m.multiply(seg.p1()), m.multiply(seg.p2())};
 }
@@ -109,7 +106,7 @@ auto	matrix_multiply(const Matrix3D<T1>& m, const Segment3D<T2>& seg)
 // utilities
 
 template<class T=double> 
-Matrix3D<T> identity_matrix()
+Matrix3D<T> identity_matrix() noexcept
 {
 	return Matrix3D<T>{ Point3D<T>{ 1, 0, 0 }, Point3D<T>{0,1,0}, Point3D<T>{0,0,1} };
 }
