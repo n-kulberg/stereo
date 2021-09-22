@@ -129,7 +129,7 @@ double	distance_to_point(s3_F64 s, p3_F64 p)
 		p *= -1;
 	}
 
-	if(p.x() >= 0 && p.x() <=s.p2().x()) return p.y();
+	if(p.x() >= 0 && p.x() <=s.p2().x()) return abs(p.y());
 	else if(p.x() > s.p2().x()) return l2_norma(s.p2() - p);
 	else return l2_norma(p);
 }
