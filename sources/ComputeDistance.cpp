@@ -63,10 +63,22 @@ bool	SectionsIntersect(const s3_F64 &s1, const s3_F64 &s2)
 	//s1 has only nonzero coordinate x
 	//s2 has nonzero x and y
 
-	if(!is_almost_zero(l1_norma(s1.p1()))) throw invalid_argument("SectionsCross, not prepared s1.p1");
-	if(s1.p2().x() < 0 ) throw invalid_argument("SectionsCross, not prepared s1.p2.x");
-	if(!is_almost_zero(s1.p2().y()) || !is_almost_zero(s1.p2().z())) throw invalid_argument("SectionsCross, not prepared s1.z");
-	if(!is_almost_zero(s2.p1().z()) || !is_almost_zero(s2.p2().z())) throw invalid_argument("SectionsCross, not prepared s2.z");
+	if(!is_almost_zero(l1_norma(s1.p1()))) 
+	{
+		throw invalid_argument("SectionsCross, not prepared s1.p1");
+	}
+	if(s1.p2().x() < 0 )
+	{
+		throw invalid_argument("SectionsCross, not prepared s1.p2.x");
+	}
+	if(!is_almost_zero(s1.p2().y()) || !is_almost_zero(s1.p2().z())) 
+	{
+		throw invalid_argument("SectionsCross, not prepared s1.z");
+	}
+	if(!is_almost_zero(s2.p1().z()) || !is_almost_zero(s2.p2().z())) 
+	{
+		throw invalid_argument("SectionsCross, not prepared s2.z");
+	}
 
 	auto	s2_rv = s2.radius_vector();
 
@@ -87,14 +99,17 @@ bool	SectionsIntersect(const s3_F64 &s1, const s3_F64 &s2)
 		return belongs_to_s1(s2.p1().x()) || belongs_to_s1(s2.p2().x());
 	}
 
-	// find cross point of s2 line and x axis
+	//section s2 does not intersect x axis
+	if(s2.p1().y() * s2.p2().y() > 0) return false;
+
+	//section s2 intersects x axis. find intersection point of s2 line and x axis
 	double	factor = -s2.p1().y()/s2_rv.y();
 	double	x = s2.p1().x() + factor*s2_rv.x();
 
 	return belongs_to_s1(x);
 }
 
-bool	distance_to_point(s3_F64& s, p3_F64& p)
+double	distance_to_point(s3_F64 s, p3_F64 p)
 {
 //	if(s.p1().z()) throw invalid_argument("distance_to_point, not prepared s1.p2.x");
 
@@ -134,17 +149,12 @@ double	ComputeDistanceXY(s3_F64 s1, s3_F64 s2)
 		s2 *= -1;
 	}
 
-	cout << "\ns1 rotated to x = " << s1 << endl << "its radius-vector = " << s1.radius_vector() << endl;
-	cout << "s2 rotated to x = " << s2 << endl << "its radius-vector = " << s2.radius_vector() << endl;
-
 	s2.p1().z() = s2.p2().z() = 0;
 
-	cout << "\ns1 placed to to xy = " << s1 << endl << "its radius-vector = " << s1.radius_vector() << endl;
-	cout << "s2 placed to xy = " << s2 << endl << "its radius-vector = " << s2.radius_vector() << endl;
-
-
-
 	if(SectionsIntersect(s1, s2)) return 0;
+
+// 	cout << "\ns1=" << s1 << endl;
+// 	cout << "\ns2=" << s2 << endl;
 
 	double	r1 = distance_to_point(s1, s2.p1());
 	double	r2 = distance_to_point(s1, s2.p2());
@@ -164,9 +174,9 @@ double	ComputeDistance(s3_F64 s1, s3_F64 s2)
 	s2 -= s1.p1();
 	s1 -= s1.p1();
 
-	cout << "\nAfter swap and move to origin" << endl;
-	cout << "s1 rotated to xy = " << s1 << endl << "its radius-vector = " << s1.radius_vector() << endl;
-	cout << "s2 rotated to xy = " << s2 << endl << "its radius-vector = " << s2.radius_vector() << endl;
+// 	cout << "\nAfter swap and move to origin" << endl;
+// 	cout << "s1 rotated to xy = " << s1 << endl << "its radius-vector = " << s1.radius_vector() << endl;
+// 	cout << "s2 rotated to xy = " << s2 << endl << "its radius-vector = " << s2.radius_vector() << endl;
 
 	// 3. Check if s1 is zero length. Since it is longer, both sections are zero-length. Distance is the length of s2.p1()
 	if(is_almost_zero(l1_norma(s1.p2()))) return l2_norma(s2.p1());
@@ -177,8 +187,8 @@ double	ComputeDistance(s3_F64 s1, s3_F64 s2)
 	s1 = matrix_multiply(rotation_matrix, s1);
 	s2 = matrix_multiply(rotation_matrix, s2);
 
-	cout << "\ns1 rotated to xy = " << s1 << endl << "its radius-vector = " << s1.radius_vector() << endl;
-	cout << "s2 rotated to xy = " << s2 << endl << "its radius-vector = " << s2.radius_vector() << endl;
+// 	cout << "\ns1 rotated to xy = " << s1 << endl << "its radius-vector = " << s1.radius_vector() << endl;
+// 	cout << "s2 rotated to xy = " << s2 << endl << "its radius-vector = " << s2.radius_vector() << endl;
 	//yes, s2 lays in plane that is parallel to XY, s1 lays in XY plane
 
 	return hypot(s2.p1().z(), ComputeDistanceXY(s1, s2));

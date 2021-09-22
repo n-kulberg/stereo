@@ -24,7 +24,10 @@ template<class T>
 m3_F64	rotation_matrix_to_z_axis(const Point3D<T>& p)
 {
 	double	r_xyz = p.l2_norma();
-	if(!std::isnormal(r_xyz) || is_almost_zero(r_xyz)) throw std::invalid_argument("rotation_matrix_to_z_axis(const Point3D<T>& p), wrong point");
+	if(!std::isnormal(r_xyz) || is_almost_zero(r_xyz)) 
+	{
+		throw std::invalid_argument("rotation_matrix_to_z_axis(const Point3D<T>& p), wrong point");
+	}
 
 	double	r_xy = hypot(p.x(), p.y());
 	if(is_small_o(r_xy, r_xyz)) return identity_matrix();//no rotation is needed
@@ -58,9 +61,9 @@ m3_F64	rotation_matrix_to_x_axis(const Point3D<T>& p)
 {
 	m3_F64	rot_z_to_x =
 	{
-		p3_F64{0, 0, -1},
+		p3_F64{0, 0, 1},
 		p3_F64{0, 1, 0},
-		p3_F64{1, 0, 0},
+		p3_F64{-1, 0, 0},
 	};
 	return matrix_multiply(rot_z_to_x, rotation_matrix_to_z_axis(p));
 }

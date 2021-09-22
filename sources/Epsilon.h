@@ -23,7 +23,7 @@ namespace kns_test
 
 
 //! \brief Absolute computation error allowed (factor to std::numeric_limits<T>::denorm_min())
-constexpr double	absolute_error_factor(){ return 1000; }
+constexpr double	absolute_error_factor(){ return 10; }
 
 //! \brief Relative computation error allowed (factor to std::numeric_limits<T>::epsilon()
 constexpr double	relative_error_factor(){ return 100; }
@@ -32,7 +32,9 @@ constexpr double	relative_error_factor(){ return 100; }
 
 //! \brief Absolute computation error allowed. Determine if the value x is negligibly small
 template<class T>
-inline bool is_almost_zero(T x) { return std::abs(x) <= absolute_error_factor()*std::numeric_limits<T>::denorm_min(); } // strict < is incorrect, <= is needed
+//inline bool is_almost_zero(T x) { return std::abs(x) <= absolute_error_factor()*std::numeric_limits<T>::denorm_min(); } // strict < is incorrect, <= is needed
+inline bool is_almost_zero(T x) { return std::abs(x) <= absolute_error_factor()*std::numeric_limits<T>::epsilon(); } // strict < is incorrect, <= is needed
+//NB denorm results in 1e-300, error around zero can be 1e-16
 
 //! \brief Determine if value x is negligible to y. Notation inspired by https://en.wikipedia.org/wiki/Big_O_notation
 template<class T>
