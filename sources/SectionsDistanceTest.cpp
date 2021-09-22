@@ -102,9 +102,10 @@ void test_skewing(double true_distance, bool intersect_xy)// testing skew sectio
 		
 		if(!almost_same(dist, true_distance))
 		{
+			double dd = ComputeDistance(sp.first, sp.second);
 			cout << "\nerr";
-			// repeat call for debugging
-			ComputeDistance(sp.first, sp.second);
+			double dd1 = ComputeDistance(sp.first, sp.second);
+			// repeat calls for debugging and stability check
 		}
 }
 
@@ -117,9 +118,10 @@ void test_colineary_sections(double offset)// testing colineary sections
 
 	if(!almost_same(dist, true_distance))
 	{
+		double dd = ComputeDistance(sp.first, sp.second);
 		cout << "\nerr";
-		// repeat call for debugging
-		ComputeDistance(sp.first, sp.second);
+		double dd1 = ComputeDistance(sp.first, sp.second);
+		// repeat calls for debugging and stability check
 	}
 }
 
@@ -132,9 +134,10 @@ void test_parallel_sections(double y, double param)// testing parallel sections
 
 	if(!almost_same(dist, true_distance))
 	{
+		double dd = ComputeDistance(sp.first, sp.second);
 		cout << "\nerr";
-		// repeat call for debugging
-		ComputeDistance(sp.first, sp.second);
+		double dd1 = ComputeDistance(sp.first, sp.second);
+		// repeat calls for debugging and stability check
 	}
 }
 
@@ -150,7 +153,9 @@ void	TestSegment3DistanceAuto()
 		double y = 1;
 
 		cout << "\nTest #" << i << ".";
+		// generate two skewing sections, one lays over other
 		test_skewing(z, true);
+		// generate two skewing sections, one lays out of other
 		test_skewing(z, false);
 		test_colineary_sections(z);
 		test_parallel_sections(y,z);
