@@ -68,8 +68,8 @@ pair<s3_F64, s3_F64> RandomSkewingSections(double z, bool intersect)
 	s3_F64	s1, s2;
 	if(intersect)
 	{
-		s1 = {p3_F64{RandomUniform(0, 1), RandomUniform(0, 1), 0}, p3_F64{RandomUniform(-1, 0), RandomUniform(-1, 0), 0}};
-		s2 = {p3_F64{RandomUniform(0, 1), RandomUniform(-1, 0), z}, p3_F64{RandomUniform(-1, z), RandomUniform(0, 1), z}};
+		s1 = {p3_F64{RandomUniform(1, 2), RandomUniform( 1, 2), 0}, p3_F64{RandomUniform(-2, -1), RandomUniform(-2, -1), 0}};
+		s2 = {p3_F64{RandomUniform(1, 2), RandomUniform(-2, -1), z}, p3_F64{RandomUniform(-2,-1), RandomUniform( 1, 2), z}};
 	}
 	else
 	{
