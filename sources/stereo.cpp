@@ -24,10 +24,14 @@ int	main(int, char **)
 	{
 		if(1)
 		{
-			TestSegment3DistanceAuto();
+			//principal testing procedure:
+			// generate a lot of random segments pairs with predefined distance between them, compute distance, compare result
+			TestSection3DistanceAuto();
 		}
 		else
 		{
+			// Auxiliary testing procedures:
+			// test basic operations correctness
 			TestVectorOperations();
 			TestSegment();
 			TestMatrix();

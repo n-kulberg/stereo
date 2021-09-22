@@ -35,10 +35,11 @@ m3_F64 RandomRotationMatrix()
 
 //RandomIntersectingSections_xy()
 
-pair<s3_F64, s3_F64> RandomParallelSections(double y, double z)
+pair<s3_F64, s3_F64> RandomParallelSections(double fixed_y_distance, double z_intersection, double z)
 {
-	s3_F64 s1 ={p3_F64{0,0,0}, p3_F64{0,0,1}};
-	s3_F64 s2 ={p3_F64{0,y,z}, p3_F64{0,y,1+z}};
+	s3_F64 s1 ={p3_F64{0,0,0}, p3_F64{0,0,z_intersection}};
+//	double	fixed_s2_z_length = 1;
+	s3_F64 s2 ={p3_F64{0,fixed_y_distance,z}, p3_F64{0,fixed_y_distance,z_intersection+z}};
 
 	auto	rm = RandomRotationMatrix();
 
@@ -62,26 +63,40 @@ pair<s3_F64, s3_F64> RandomColinearySections(double z)
 	return make_pair(s1, s2);
 }
 
+enum class skewing
+{
+	X_shaped, T_shaped, L_shaped
+};
 
-pair<s3_F64, s3_F64> RandomSkewingSections(double z, bool intersect)
+pair<s3_F64, s3_F64> RandomSkewingSections(double z, skewing shape)
 {
 	s3_F64	s1, s2;
-	if(intersect)
+	if(shape == skewing::X_shaped)
 	{
 		double p1 = sqrt(0.5);
 		double p2 = 2;
 		s1 = {p3_F64{RandomUniform(p1, p2), RandomUniform( p1, p2), 0}, p3_F64{RandomUniform(-p2, -p1), RandomUniform(-p2, -p1), 0}};
 		s2 = {p3_F64{RandomUniform(p1, p2), RandomUniform(-p2, -p1), z}, p3_F64{RandomUniform(-p2,-p1), RandomUniform( p1, p2), z}};
-		//Generate two X-shaped sections that intersect in XY plane.
+		//Generate X-shaped pair of sections that intersect in XY plane.
 	}
-	else
+	else if(shape == skewing::T_shaped)
 	{
 		s1 ={p3_F64{RandomUniform(-1, -2), 0, 0}, p3_F64{RandomUniform(0, 2), 0, 0}};
 		double	fi = RandomUniform(0, 3.1415926/2);
 		double	x = RandomUniform(s1.p1().x(), s1.p2().x());
 		double y0 = z*cos(fi);
 		s2 ={p3_F64{x, y0, z*sin(fi)}, p3_F64{x, y0 + RandomUniform(1,2), z*sin(fi)}};		
-		//Generate two T-shaped sections that do not intersect in XY plane (but may concern).
+		//Generate T-shaped pair of sections that do not intersect in XY plane (but may concern).
+	}
+	else if(shape == skewing::L_shaped)
+	{
+		s1 ={p3_F64{RandomUniform(-1, -2), 0, 0}, p3_F64{RandomUniform(0, 2), 0, 0}};
+		double	fi = RandomUniform(0, 3.1415926/2);
+		z *= sqrt(0.5);
+		double	x = s1.p2().x() + abs(z);// out of s1 range
+		double y0 = z*cos(fi);
+		s2 ={p3_F64{x, y0, z*sin(fi)}, p3_F64{x, y0 + RandomUniform(1,2), z*sin(fi)}};
+		//Generate L-shaped pair of sections that do not intersect or concern in XY plane
 	}
 
 	auto	rm = RandomRotationMatrix();
@@ -103,10 +118,10 @@ size_t total_test_count = 0;
 bool	print_intermediate = false;
 
 
-void test_skewing(double true_distance, bool intersect_xy)// testing skew sections that may intersect in XY plane or not
+void test_skewing(double true_distance, skewing skewing_type)// testing skew sections that may intersect in XY plane or not
 {
 	++total_test_count;
- 	auto	sp = RandomSkewingSections(true_distance, intersect_xy); //passed OK
+ 	auto	sp = RandomSkewingSections(true_distance, skewing_type); //passed OK
 
 	double	dist = ComputeDistance(sp.first, sp.second);
 	if(print_intermediate)
@@ -145,9 +160,10 @@ void test_colineary_sections(double offset)// testing colineary sections
 void test_parallel_sections(double y, double param)// testing parallel sections
 {
 	++total_test_count;
-	auto	sp = RandomParallelSections(y, param); //Estimated distance must hypot(1, max(z-1, 0)). passed OK
+	double z_intersection = RandomUniform(-1,1);
+	auto	sp = RandomParallelSections(y, z_intersection, param); //Estimated distance must hypot(1, max(z-1, 0)). passed OK
 	double	dist = ComputeDistance(sp.first, sp.second);
-	double true_distance = hypot(y, std::max(param-1., 0.));
+	double true_distance = hypot(y, std::max(param-abs(z_intersection), 0.));
 	
 	if(print_intermediate)
 		cout << endl << "\testimated distance=" << dist << "\ttrue distance = " << true_distance << endl;
@@ -163,23 +179,27 @@ void test_parallel_sections(double y, double param)// testing parallel sections
 }
 
 
-void	TestSegment3DistanceAuto()
+void	TestSection3DistanceAuto()
 {
 	clock_t	t = clock();
 	srand(t);
 	size_t	N = 100000;
 	for(size_t i = 0; i < N; ++i)
 	{
-		double	z = i*0.011;
-		double y = 1;
+		double	predefined_distance = i*0.011;
 
 		if(!(i%1000))cout << "\nTest #" << i << ".";
 		// generate two skewing sections, one lays over other
-		test_skewing(z, true);
+		test_skewing(predefined_distance, skewing::X_shaped);
 		// generate two skewing sections, one lays out of other
-		test_skewing(z, false);
-		test_colineary_sections(z);
-		test_parallel_sections(y,z);
+		test_skewing(predefined_distance, skewing::T_shaped);
+		// generate two skewing sections, one lays out of other
+		test_skewing(predefined_distance, skewing::L_shaped);
+		
+		test_colineary_sections(predefined_distance);
+
+		double fixed_y_distance = 1;
+		test_parallel_sections(fixed_y_distance,predefined_distance);
 
 	}
 
