@@ -154,8 +154,9 @@ public:
 	//! \brief L1 norma of the field object. It is a bit faster than L2
 	value_type l1_norma () const noexcept { return acquire_binary_action(*this, *this, [](const T& x, const T&){return kns_test::l1_norma(x);}); }
 
-protected:
+private:
 	T	m_data[n_dimensions()];
+protected:
 
 	//! \brief Apply operation F to every pair of elements in first and second argument. F modifies first argument
 	template<class T2, class C2, class F>
