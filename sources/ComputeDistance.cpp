@@ -157,9 +157,6 @@ double	ComputeDistanceXY(s3_F64 s1, s3_F64 s2)
 
 	if(SectionsIntersect(s1, s2)) return 0;
 
-// 	cout << "\ns1=" << s1 << endl;
-// 	cout << "\ns2=" << s2 << endl;
-
 	double	r1 = distance_to_point(s1, s2.p1());
 	double	r2 = distance_to_point(s1, s2.p2());
 	double	r3 = distance_to_point(s2, s1.p1());
@@ -178,10 +175,6 @@ double	ComputeDistance(s3_F64 s1, s3_F64 s2)
 	s2 -= s1.p1();
 	s1 -= s1.p1();
 
-// 	cout << "\nAfter swap and move to origin" << endl;
-// 	cout << "s1 rotated to xy = " << s1 << endl << "its radius-vector = " << s1.radius_vector() << endl;
-// 	cout << "s2 rotated to xy = " << s2 << endl << "its radius-vector = " << s2.radius_vector() << endl;
-
 	// 3. Check if s1 is zero length. Since it is longer, both sections are zero-length. Distance is the length of s2.p1()
 	if(is_almost_zero(l1_norma(s1.p2()))) return l2_norma(s2.p1());
 
@@ -190,10 +183,6 @@ double	ComputeDistance(s3_F64 s1, s3_F64 s2)
 
 	s1 = matrix_multiply(rotation_matrix, s1);
 	s2 = matrix_multiply(rotation_matrix, s2);
-
-// 	cout << "\ns1 rotated to xy = " << s1 << endl << "its radius-vector = " << s1.radius_vector() << endl;
-// 	cout << "s2 rotated to xy = " << s2 << endl << "its radius-vector = " << s2.radius_vector() << endl;
-	//yes, s2 lays in plane that is parallel to XY, s1 lays in XY plane
 
 	return hypot(s2.p1().z(), ComputeDistanceXY(s1, s2));
 }
