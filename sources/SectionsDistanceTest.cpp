@@ -76,7 +76,7 @@ pair<s3_F64, s3_F64> RandomSkewingSections(double z, bool intersect)
 	}
 	else
 	{
-		s1 ={p3_F64{RandomUniform(-1, -2), 0, 0}, p3_F64{RandomUniform(1, 2), 0, 0}};
+		s1 ={p3_F64{RandomUniform(-1, -2), 0, 0}, p3_F64{RandomUniform(0, 2), 0, 0}};
 		double	fi = RandomUniform(0, 3.1415926/2);
 		double	x = RandomUniform(s1.p1().x(), s1.p2().x());
 		double y0 = z*cos(fi);
