@@ -68,8 +68,11 @@ pair<s3_F64, s3_F64> RandomSkewingSections(double z, bool intersect)
 	s3_F64	s1, s2;
 	if(intersect)
 	{
-		s1 = {p3_F64{RandomUniform(1, 2), RandomUniform( 1, 2), 0}, p3_F64{RandomUniform(-2, -1), RandomUniform(-2, -1), 0}};
-		s2 = {p3_F64{RandomUniform(1, 2), RandomUniform(-2, -1), z}, p3_F64{RandomUniform(-2,-1), RandomUniform( 1, 2), z}};
+		double p1 = sqrt(0.5);
+		double p2 = 2;
+		s1 = {p3_F64{RandomUniform(p1, p2), RandomUniform( p1, p2), 0}, p3_F64{RandomUniform(-p2, -p1), RandomUniform(-p2, -p1), 0}};
+		s2 = {p3_F64{RandomUniform(p1, p2), RandomUniform(-p2, -p1), z}, p3_F64{RandomUniform(-p2,-p1), RandomUniform( p1, p2), z}};
+		//Generate two X-shaped sections that intersect in XY plane.
 	}
 	else
 	{
@@ -77,7 +80,8 @@ pair<s3_F64, s3_F64> RandomSkewingSections(double z, bool intersect)
 		double	fi = RandomUniform(0, 3.1415926/2);
 		double	x = RandomUniform(s1.p1().x(), s1.p2().x());
 		double y0 = z*cos(fi);
-		s2 ={p3_F64{x, y0, z*sin(fi)}, p3_F64{x, y0 + RandomUniform(0,2), z*sin(fi)}};		
+		s2 ={p3_F64{x, y0, z*sin(fi)}, p3_F64{x, y0 + RandomUniform(1,2), z*sin(fi)}};		
+		//Generate two T-shaped sections that do not intersect in XY plane (but may concern).
 	}
 
 	auto	rm = RandomRotationMatrix();
@@ -93,31 +97,43 @@ pair<s3_F64, s3_F64> RandomSkewingSections(double z, bool intersect)
 using namespace kns_test;
 using namespace std;
 
+size_t errata_count = 0;
+size_t total_test_count = 0;
+bool	print_intermediate = false;
+
+
 void test_skewing(double true_distance, bool intersect_xy)// testing skew sections that may intersect in XY plane or not
 {
- 		auto	sp = RandomSkewingSections(true_distance, intersect_xy); //passed OK
+	++total_test_count;
+ 	auto	sp = RandomSkewingSections(true_distance, intersect_xy); //passed OK
 
-		double	dist = ComputeDistance(sp.first, sp.second);
+	double	dist = ComputeDistance(sp.first, sp.second);
+	if(print_intermediate)
 		cout << endl << "\testimated distance=" << dist << "\ttrue distance=" << true_distance;
 		
-		if(!almost_same(dist, true_distance))
-		{
-			double dd = ComputeDistance(sp.first, sp.second);
-			cout << "\nerr";
-			double dd1 = ComputeDistance(sp.first, sp.second);
-			// repeat calls for debugging and stability check
-		}
+	if(!almost_same(dist, true_distance))
+	{
+		++errata_count;
+		double dd = ComputeDistance(sp.first, sp.second);
+		cout << "\nerr";
+		cout << endl << "\testimated distance=" << dist << "\ttrue distance=" << true_distance;
+		double dd1 = ComputeDistance(sp.first, sp.second);
+		// repeat calls for debugging and stability check
+	}
 }
 
 void test_colineary_sections(double offset)// testing colineary sections
 {
+	++total_test_count;
 	auto	sp = RandomColinearySections(offset); //Estimated distance must max(z-1, 0). passed OK
 	double	dist = ComputeDistance(sp.first, sp.second);
 	double true_distance = std::max(offset-1., 0.);
-	cout << endl << "\testimated distance=" << dist << "\ttrue distance =" << true_distance;
+	if(print_intermediate)
+		cout << endl << "\testimated distance=" << dist << "\ttrue distance =" << true_distance;
 
 	if(!almost_same(dist, true_distance))
 	{
+		++errata_count;
 		double dd = ComputeDistance(sp.first, sp.second);
 		cout << "\nerr";
 		double dd1 = ComputeDistance(sp.first, sp.second);
@@ -127,13 +143,17 @@ void test_colineary_sections(double offset)// testing colineary sections
 
 void test_parallel_sections(double y, double param)// testing parallel sections
 {
+	++total_test_count;
 	auto	sp = RandomParallelSections(y, param); //Estimated distance must hypot(1, max(z-1, 0)). passed OK
 	double	dist = ComputeDistance(sp.first, sp.second);
 	double true_distance = hypot(y, std::max(param-1., 0.));
-	cout << endl << "\testimated distance=" << dist << "\ttrue distance = " << true_distance << endl;
+	
+	if(print_intermediate)
+		cout << endl << "\testimated distance=" << dist << "\ttrue distance = " << true_distance << endl;
 
 	if(!almost_same(dist, true_distance))
 	{
+		++errata_count;
 		double dd = ComputeDistance(sp.first, sp.second);
 		cout << "\nerr";
 		double dd1 = ComputeDistance(sp.first, sp.second);
@@ -146,13 +166,13 @@ void	TestSegment3DistanceAuto()
 {
 	clock_t	t = clock();
 	srand(t);
-	size_t	N = 100;
+	size_t	N = 100000;
 	for(size_t i = 0; i < N; ++i)
 	{
-		double	z = i*0.11;
+		double	z = i*0.011;
 		double y = 1;
 
-		cout << "\nTest #" << i << ".";
+		if(!(i%1000))cout << "\nTest #" << i << ".";
 		// generate two skewing sections, one lays over other
 		test_skewing(z, true);
 		// generate two skewing sections, one lays out of other
@@ -162,7 +182,11 @@ void	TestSegment3DistanceAuto()
 
 	}
 
-	cout << endl << "Tests passed";
+
+	cout << endl << "Tests passed = " << total_test_count << endl;
+	cout << endl << "Errata count = " << errata_count << endl;
+	
+	cout << endl << "Error ratio = " << double(errata_count)/total_test_count;
 }
 
 
