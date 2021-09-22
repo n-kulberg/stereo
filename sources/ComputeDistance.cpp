@@ -116,7 +116,11 @@ double	distance_to_point(s3_F64 s, p3_F64 p)
 	p -= s.p1();
 	s-= s.p1();
 
+	//p coincides with origin and with start of s
 	if(is_almost_zero(l1_norma(p))) return 0;
+	//s is zero-length, both its ends coincide with origin
+	if(is_almost_zero(l1_norma(s.radius_vector()))) return l2_norma(p);
+
 	auto	rotation_matrix = rotation_matrix_to_x_axis(s.p2());
 
 	p = matrix_multiply(rotation_matrix, p);
