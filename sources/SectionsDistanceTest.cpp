@@ -97,6 +97,7 @@ pair<s3_F64, s3_F64> RandomSkewingSections(double z, bool intersect)
 using namespace kns_test;
 using namespace std;
 
+//yes, globals is bad practice. But in this hastily test it may be acceptable
 size_t errata_count = 0;
 size_t total_test_count = 0;
 bool	print_intermediate = false;
