@@ -13,7 +13,7 @@
 //------------------------------------------------------------------
 
 
-void	TestSegment3Distance();
+void	TestSegment3DistanceAuto();
 
 
 #endif //__SectionsDistanceTest_h

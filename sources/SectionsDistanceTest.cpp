@@ -35,18 +35,50 @@ m3_F64 RandomRotationMatrix()
 
 //RandomIntersectingSections_xy()
 
+pair<s3_F64, s3_F64> RandomParallelSections(double y, double z)
+{
+	s3_F64 s1 ={p3_F64{0,0,0}, p3_F64{0,0,1}};
+	s3_F64 s2 ={p3_F64{0,y,z}, p3_F64{0,y,1+z}};
+
+	auto	rm = RandomRotationMatrix();
+
+	s1 = matrix_multiply(rm, s1);
+	s2 = matrix_multiply(rm, s2);
+
+	return make_pair(s1, s2);
+}
+
+
+pair<s3_F64, s3_F64> RandomColinearySections(double z)
+{
+	s3_F64 s1 ={p3_F64{0,0,0}, p3_F64{0,0,1}};
+	s3_F64 s2 ={p3_F64{0,0,z}, p3_F64{0,0,1+z}};
+
+	auto	rm = RandomRotationMatrix();
+
+	s1 = matrix_multiply(rm, s1);
+	s2 = matrix_multiply(rm, s2);
+
+	return make_pair(s1, s2);
+}
+
+
 pair<s3_F64, s3_F64> RandomSkewingSections(double z, bool intersect)
 {
-	s3_F64	s1
+	s3_F64	s1, s2;
+	if(intersect)
 	{
-		p3_F64{RandomUniform(0, 1), RandomUniform(0, 1), 0}, p3_F64{RandomUniform(-1, 0), RandomUniform(-1, 0), 0}
-	};
-	s3_F64	s2
+		s1 = {p3_F64{RandomUniform(0, 1), RandomUniform(0, 1), 0}, p3_F64{RandomUniform(-1, 0), RandomUniform(-1, 0), 0}};
+		s2 = {p3_F64{RandomUniform(0, 1), RandomUniform(-1, 0), z}, p3_F64{RandomUniform(-1, z), RandomUniform(0, 1), z}};
+	}
+	else
 	{
-		p3_F64{RandomUniform(0, 1), RandomUniform(-1, 0), z}, p3_F64{RandomUniform(-1, z), RandomUniform(0, 1), z},
-	};
-
-	if(!intersect) s2 += p3_F64{RandomUniform(1, 2), RandomUniform(-2,-1), 0};
+		s1 ={p3_F64{RandomUniform(-1, -2), 0, 0}, p3_F64{RandomUniform(1, 2), 0, 0}};
+		double	fi = RandomUniform(0, 3.1415926/2);
+		double	x = RandomUniform(s1.p1().x(), s1.p2().x());
+		double y0 = z*cos(fi);
+		s2 ={p3_F64{x, y0, z*sin(fi)}, p3_F64{x, y0 + RandomUniform(0,2), z*sin(fi)}};		
+	}
 
 	auto	rm = RandomRotationMatrix();
 
@@ -61,7 +93,49 @@ pair<s3_F64, s3_F64> RandomSkewingSections(double z, bool intersect)
 using namespace kns_test;
 using namespace std;
 
-void	TestSegment3Distance()
+void test_skewing(double z, bool intersect_xy)// testing skew sections that may intersect in XY plane or not
+{
+ 		auto	sp = RandomSkewingSections(z, intersect_xy); //passed OK
+		double	dist = ComputeDistance(sp.first, sp.second);
+		cout << endl << "\tpre-defined z param=" << z << "\testimated distance=" << dist;
+}
+
+void test_colineary(double z)// testing colineary sections
+{
+	auto	sp = RandomColinearySections(z); //Estimated distance must max(z-1, 0). passed OK
+	double	dist = ComputeDistance(sp.first, sp.second);
+	cout << endl << "\tpre-defined z param=" << z << "\testimated distance=" << dist << "\ttrue distance = max(z-1,0)=" << std::max(z-1., 0.);
+}
+
+void test_parallel(double y, double z)// testing parallel sections
+{
+	auto	sp = RandomParallelSections(y, z); //Estimated distance must hypot(1, max(z-1, 0)). passed OK
+	double	dist = ComputeDistance(sp.first, sp.second);
+	cout << endl << "\testimated distance=" << dist << "\ttrue distance = hypot(y,max(z-1,0))=" << hypot(y, std::max(z-1., 0.)) << endl;
+}
+
+
+void	TestSegment3DistanceAuto()
+{
+	clock_t	t = clock();
+	srand(t);
+	size_t	N = 10;
+	for(size_t i = 0; i < N; ++i)
+	{
+		double	z = i*0.25;
+		double y = 1;
+
+		cout << "Test #" << i << ".";
+		test_skewing(z, true);
+		test_skewing(z, false);
+		test_colineary(z);
+		test_parallel(y,z);
+
+	}
+}
+
+
+void	TestSegment3DistanceManual()
 {
 // 	s3_F64	s1{p3_F64{1,1,0},p3_F64{1,2,3}};
 // 	s3_F64	s2{p3_F64{3,2,7},p3_F64{-1,5,4}};

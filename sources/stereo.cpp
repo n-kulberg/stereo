@@ -1,6 +1,7 @@
 ﻿//#include "Segment.h"
 
 #include "TrivialTests.h"
+#include "SectionsDistanceTest.h"
 #include <iostream>
 
 
@@ -23,7 +24,7 @@ int	main(int, char **)
 	{
 		if(1)
 		{
-			TestSegment3Distance();
+			TestSegment3DistanceAuto();
 		}
 		else
 		{
