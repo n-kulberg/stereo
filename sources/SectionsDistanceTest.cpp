@@ -138,7 +138,7 @@ void test_skewing(double true_distance, skewing skewing_type)// testing skew sec
 	}
 }
 
-void test_colineary_sections(double offset)// testing colineary sections
+void test_collinear_sections(double offset)// testing collinear sections
 {
 	++total_test_count;
 	auto	sp = RandomColinearySections(offset); //Estimated distance must max(z-1, 0). passed OK
@@ -196,7 +196,7 @@ void	TestSection3DistanceAuto()
 		// generate two skewing sections, one lays out of other
 		test_skewing(predefined_distance, skewing::L_shaped);
 		
-		test_colineary_sections(predefined_distance);
+		test_collinear_sections(predefined_distance);
 
 		double fixed_y_distance = 1;
 		test_parallel_sections(fixed_y_distance,predefined_distance);
