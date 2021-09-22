@@ -40,6 +40,11 @@ inline bool is_almost_zero(T x) { return std::abs(x) <= absolute_error_factor()*
 template<class T>
 inline bool is_small_o(T x, T y){ return std::abs(x) <= std::abs(y)* relative_error_factor()*std::numeric_limits<T>::epsilon(); } // strict < is incorrect, <= is needed
 
+//! \brief Determine if value x is negligible to y. Notation inspired by https://en.wikipedia.org/wiki/Big_O_notation
+template<class T>
+inline bool almost_same(T x, T y){ return is_almost_zero(x-y) ? true : is_small_o(x-y, std::max(x, y)); }
+
+
 }//namespace kns_test
 
 #endif //__Epsilon_h
