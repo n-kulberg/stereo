@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <type_traits>
+#include <cmath>
 
 namespace kns_test
 {
@@ -149,7 +150,7 @@ public:
 	template<class T2, class C2> value_type scalar_product(const FieldObject<T2, C2, N>& other) const noexcept { return acquire_binary_action(*this, other, [](const T& x, const T2& y){return kns_test::scalar_product(x, y);}); }
 
 	//! \brief Lebesgue norma of the field object
-	double	l2_norma() const noexcept { return sqrt(static_cast<double>(scalar_product(*this))); }
+	double	l2_norma() const noexcept { return std::sqrt(static_cast<double>(scalar_product(*this))); }
 
 	//! \brief L1 norma of the field object. It is a bit faster than L2
 	value_type l1_norma () const noexcept { return acquire_binary_action(*this, *this, [](const T& x, const T&){return kns_test::l1_norma(x);}); }
