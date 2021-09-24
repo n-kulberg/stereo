@@ -186,7 +186,7 @@ void	TestSection3DistanceAuto()
 	srand(t);
 	size_t	N = 100000;
 
-	std::chrono::microseconds	total_time_counter(0);
+	std::chrono::nanoseconds	total_time_counter(0);
 
 	for(size_t i = 0; i < N; ++i)
 	{
@@ -207,12 +207,12 @@ void	TestSection3DistanceAuto()
 		test_parallel_sections(fixed_y_distance,predefined_distance);
 
 		auto t1 = std::chrono::high_resolution_clock::now();
-		auto dt = std::chrono::duration_cast<std::chrono::microseconds>(t1-t0);
+		auto dt = std::chrono::duration_cast<std::chrono::nanoseconds>(t1-t0);
 		total_time_counter += dt;
 
 		if(i && !(i%1000))
 		{
-			std::cout << "\nTest #" << i << ". Last test time = " << dt.count() << " mks; average = " << (total_time_counter/i).count() << " mks";
+			std::cout << "\nTest #" << i << ". Last test time = " << dt.count() << " ns; average = " << (total_time_counter/i).count() << " ns";
 		}
 
 	}
