@@ -5,6 +5,7 @@
 #include "FieldOutput.h"
 
 #include <iostream>
+#include <chrono>
 
 //------------------------------------------------------------------
 //
@@ -184,11 +185,15 @@ void	TestSection3DistanceAuto()
 	clock_t	t = clock();
 	srand(t);
 	size_t	N = 100000;
+
+	std::chrono::microseconds	total_time_counter(0);
+
 	for(size_t i = 0; i < N; ++i)
 	{
 		double	predefined_distance = i*0.011;
 
-		if(!(i%1000))cout << "\nTest #" << i << ".";
+		auto t0 = std::chrono::high_resolution_clock::now();
+
 		// generate two skewing sections, one lays over other
 		test_skewing(predefined_distance, skewing::X_shaped);
 		// generate two skewing sections, one lays out of other
@@ -201,13 +206,21 @@ void	TestSection3DistanceAuto()
 		double fixed_y_distance = 1;
 		test_parallel_sections(fixed_y_distance,predefined_distance);
 
+		auto t1 = std::chrono::high_resolution_clock::now();
+		auto dt = std::chrono::duration_cast<std::chrono::microseconds>(t1-t0);
+		total_time_counter += dt;
+
+		if(i && !(i%1000))
+		{
+			std::cout << "\nTest #" << i << ". Last test time = " << dt.count() << " mks; average = " << (total_time_counter/i).count() << " mks";
+		}
+
 	}
 
 
-	cout << endl << "Tests passed = " << total_test_count << endl;
-	cout << endl << "Errata count = " << errata_count << endl;
-	
-	cout << endl << "Error ratio = " << double(errata_count)/total_test_count;
+	std::cout << endl << "Tests passed = " << total_test_count << endl;
+	std::cout << endl << "Errata count = " << errata_count << endl;
+	std::cout << endl << "Error ratio = " << double(errata_count)/total_test_count;
 }
 
 
