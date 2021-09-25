@@ -132,8 +132,8 @@ void test_skewing(double true_distance, skewing skewing_type)// testing skew sec
 	{
 		++errata_count;
 		double dd = ComputeDistance(sp.first, sp.second);
-		cout << "\nerr";
-		cout << endl << "\testimated distance=" << dist << "\ttrue distance=" << true_distance;
+		cout << "\nerr skewing";
+		cout << endl << "\testimated distance=" << dist << "\ttrue distance=" << true_distance << "; difference = " << dist-true_distance;
 		double dd1 = ComputeDistance(sp.first, sp.second);
 		// repeat calls for debugging and stability check
 	}
@@ -152,7 +152,8 @@ void test_collinear_sections(double offset)// testing collinear sections
 	{
 		++errata_count;
 		double dd = ComputeDistance(sp.first, sp.second);
-		cout << "\nerr";
+		cout << "\nerr collinear";
+		cout << endl << "\testimated distance=" << dist << "\ttrue distance=" << true_distance << "; difference = " << dist-true_distance;
 		double dd1 = ComputeDistance(sp.first, sp.second);
 		// repeat calls for debugging and stability check
 	}
@@ -173,7 +174,8 @@ void test_parallel_sections(double y, double param)// testing parallel sections
 	{
 		++errata_count;
 		double dd = ComputeDistance(sp.first, sp.second);
-		cout << "\nerr";
+		cout << "\nerr parallel";
+		cout << endl << "\testimated distance=" << dist << "\ttrue distance=" << true_distance << "; difference = " << dist-true_distance;
 		double dd1 = ComputeDistance(sp.first, sp.second);
 		// repeat calls for debugging and stability check
 	}
@@ -194,12 +196,12 @@ void	TestSection3DistanceAuto()
 
 		auto t0 = std::chrono::high_resolution_clock::now();
 
-		// generate two skewing sections, one lays over other
-		test_skewing(predefined_distance, skewing::X_shaped);
-		// generate two skewing sections, one lays out of other
-		test_skewing(predefined_distance, skewing::T_shaped);
-		// generate two skewing sections, one lays out of other
-		test_skewing(predefined_distance, skewing::L_shaped);
+// 		// generate two skewing sections, one lays over other
+// 		test_skewing(predefined_distance, skewing::X_shaped);
+// 		// generate two skewing sections, one lays out of other
+// 		test_skewing(predefined_distance, skewing::T_shaped);
+// 		// generate two skewing sections, one lays out of other
+// 		test_skewing(predefined_distance, skewing::L_shaped);
 		
 		test_collinear_sections(predefined_distance);
 
