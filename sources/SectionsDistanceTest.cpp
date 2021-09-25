@@ -196,12 +196,12 @@ void	TestSection3DistanceAuto()
 
 		auto t0 = std::chrono::high_resolution_clock::now();
 
-// 		// generate two skewing sections, one lays over other
-// 		test_skewing(predefined_distance, skewing::X_shaped);
-// 		// generate two skewing sections, one lays out of other
-// 		test_skewing(predefined_distance, skewing::T_shaped);
-// 		// generate two skewing sections, one lays out of other
-// 		test_skewing(predefined_distance, skewing::L_shaped);
+		// generate two skewing sections, one lays over other
+		test_skewing(predefined_distance, skewing::X_shaped);
+		// generate two skewing sections, one lays out of other
+		test_skewing(predefined_distance, skewing::T_shaped);
+		// generate two skewing sections, one lays out of other
+		test_skewing(predefined_distance, skewing::L_shaped);
 		
 		test_collinear_sections(predefined_distance);
 
@@ -214,7 +214,7 @@ void	TestSection3DistanceAuto()
 
 		if(i && !(i%1000))
 		{
-			std::cout << "\nTest #" << i << ". Last test time = " << dt.count() << " ns; average = " << (total_time_counter/i).count() << " ns";
+			std::cout << "\nTest #" << i << ". Last test time = " << dt.count() << " ns; average = " << double((total_time_counter/i).count())/1000 << " mks";
 		}
 
 	}
