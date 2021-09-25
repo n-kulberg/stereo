@@ -117,10 +117,16 @@ double	distance_to_point(s3_F64 s, p3_F64 p)
 	p -= s.p1();
 	s-= s.p1();
 
+	cout << "\nbefore\n";
+
+	cout << "p = " << l1_norma(p);
+
 	//p coincides with origin and with start of s
 	if(is_almost_zero(l1_norma(p))) return 0;
 	//s is zero-length, both its ends coincide with origin
 	if(is_almost_zero(l1_norma(s.radius_vector()))) return l2_norma(p);
+
+	cout << "\nso on\n";
 
 	auto	rotation_matrix = rotation_matrix_to_x_axis(s.p2());
 
@@ -148,6 +154,7 @@ double	ComputeDistanceXY(s3_F64 s1, s3_F64 s2)
 	s1 = matrix_multiply(rotation_matrix, s1);
 	s2 = matrix_multiply(rotation_matrix, s2);
 
+
 	if(s1.p2().x() < 0)
 	{
 		s1 *= -1;
@@ -158,10 +165,12 @@ double	ComputeDistanceXY(s3_F64 s1, s3_F64 s2)
 
 	if(SectionsIntersect(s1, s2)) return 0;
 
-	double	r1 = distance_to_point(s1, s2.p1());
-	double	r2 = distance_to_point(s1, s2.p2());
-	double	r3 = distance_to_point(s2, s1.p1());
+	double	r1 = 100; //distance_to_point(s1, s2.p1());
+	double	r2 = 100; //distance_to_point(s1, s2.p2());
+	double	r3 = 100; //distance_to_point(s2, s1.p1());
 	double	r4 = distance_to_point(s2, s1.p2());
+
+	cout << endl << r1 << endl << r2 << endl << r3 << endl << r4 << endl;
 
 	return std::min(std::min(r1, r2), std::min(r3, r4));
 }
@@ -182,8 +191,10 @@ double	ComputeDistance(s3_F64 s1, s3_F64 s2)
 	auto	rotation_matrix = make_parallel_to_xy_transform(s1,s2);
 
 
+
 	s1 = matrix_multiply(rotation_matrix, s1);
 	s2 = matrix_multiply(rotation_matrix, s2);
+
 
 	return hypot(s2.p1().z(), ComputeDistanceXY(s1, s2));
 }

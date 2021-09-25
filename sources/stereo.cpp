@@ -26,7 +26,8 @@ int	main(int, char **)
 		{
 			//principal testing procedure:
 			// generate a lot of random segments pairs with predefined distance between them, compute distance, compare result
-			TestSection3DistanceAuto();
+			//TestSection3DistanceAuto();
+			TestSegment3DistanceManual();
 		}
 		else
 		{

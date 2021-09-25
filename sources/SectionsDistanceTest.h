@@ -12,7 +12,10 @@
 //
 //------------------------------------------------------------------
 
+//	Testing custom cases to find calculation errors
+void	TestSegment3DistanceManual();
 
+// Testing big random sequences
 void	TestSection3DistanceAuto();
 
 

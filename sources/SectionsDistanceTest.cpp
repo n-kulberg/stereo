@@ -153,6 +153,8 @@ void test_collinear_sections(double offset)// testing collinear sections
 		++errata_count;
 		double dd = ComputeDistance(sp.first, sp.second);
 		cout << "\nerr collinear";
+		cout << endl << "first = " << sp.first;
+		cout << endl << "second = " << sp.second;
 		cout << endl << "\testimated distance=" << dist << "\ttrue distance=" << true_distance << "; difference = " << dist-true_distance;
 		double dd1 = ComputeDistance(sp.first, sp.second);
 		// repeat calls for debugging and stability check
@@ -206,7 +208,7 @@ void	TestSection3DistanceAuto()
 		test_collinear_sections(predefined_distance);
 
 		double fixed_y_distance = 1;
-		test_parallel_sections(fixed_y_distance,predefined_distance);
+//		test_parallel_sections(fixed_y_distance,predefined_distance);
 
 		auto t1 = std::chrono::high_resolution_clock::now();
 		auto dt = std::chrono::duration_cast<std::chrono::nanoseconds>(t1-t0);
@@ -214,7 +216,7 @@ void	TestSection3DistanceAuto()
 
 		if(i && !(i%1000))
 		{
-			std::cout << "\nTest #" << i << ". Last test time = " << dt.count() << " ns; average = " << (total_time_counter/i).count() << " ns";
+			std::cout << "\nTest #" << i << ". Last test time = " << dt.count() << " ns; average = " << double((total_time_counter/i).count())/1000 << " mks";
 		}
 
 	}
@@ -233,8 +235,15 @@ void	TestSegment3DistanceManual()
 //	s3_F64	s2 = s1 + p3_F64{1,1,1};
 
 
-	s3_F64	s1{p3_F64{0,0,0},p3_F64{1,0,0}};
-	s3_F64	s2{p3_F64{0.75,1,0},p3_F64{1.250,-1,0}};
+// 	s3_F64	s1{p3_F64{0,0,0},p3_F64{1,0,0}};
+// 	s3_F64	s2{p3_F64{0.75,1,0},p3_F64{1.250,-1,0}};
+
+
+// 	s3_F64	s1{p3_F64{0,0,0}, p3_F64{ 0,0,1 }};
+// 	s3_F64	s2{p3_F64{0,0,1.001}, p3_F64{ 0,0,2.001 }};
+
+	s3_F64	s1{p3_F64{0,0,0}, p3_F64{ 1,0,0 }};
+	s3_F64	s2{p3_F64{1.001,0,0}, p3_F64{ 2.001,0,0 }};
 
 
 	cout << "s1 = " << s1 << endl << "its radius-vector = " << s1.radius_vector() << endl;
