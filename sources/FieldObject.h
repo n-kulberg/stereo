@@ -33,7 +33,7 @@ typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmetic<T2>:
 template<class T1>
 typename std::enable_if<std::is_arithmetic<T1>::value, T1>::type	l1_norma(const T1& x) noexcept
 {
-	return abs(x);
+	return fabs(x);
 }
 
 
