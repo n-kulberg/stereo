@@ -28,7 +28,6 @@ public:
 	using point_type = Point3D<T>;
 
 	using parent::parent;
-	using parent::operator =;
 
 	point_type& p1(){ return at(m_p1()); }
 	point_type& p2(){ return at(m_p2()); }
