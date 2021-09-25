@@ -29,11 +29,20 @@ typename std::enable_if<std::is_arithmetic<T1>::value && std::is_arithmetic<T2>:
 	return x*y;
 }
 
+
+//! Different compilers differently treat the abs/fabs meaning. To get similar behavior, let's use custom functions
+inline short	absolute(short x){ return abs(x); }
+inline int	absolute(int x){ return abs(x); }
+inline long	absolute(long x){ return labs(x); }
+inline float	absolute(float x){ return fabs(x); }
+inline double	absolute(double x){ return fabs(x); }
+inline long double	absolute(long double x){ return fabsl(x); }
+
 //! \brief scalar product operation for built-in arithmetic types
 template<class T1>
 typename std::enable_if<std::is_arithmetic<T1>::value, T1>::type	l1_norma(const T1& x) noexcept
 {
-	return fabs(x);
+	return absolute(x);
 }
 
 
